@@ -6,7 +6,7 @@
   "scripts": {
     "setup": "npm install && rustup target add wasm32-unknown-unknown",
     "build": "npm run build:wasm && npm run build:web",
-    "build:wasm": "wasm-pack build --target web --release --out-dir pkg --out-name galaxy_sim",
+    "build:wasm": "wasm-pack build --target web --release --out-dir pkg --out-name galaxy_sim --no-opt",
     "build:web": "npm run copy-assets && npm run cache-bust",
     "cache-bust": "node scripts/cache-buster.js",
     "build:desktop": "cargo build --release",

@@ -35,7 +35,7 @@ pub struct Simulation {
 }
 
 impl Simulation {
-    pub fn new(device: &wgpu::Device, queue: &wgpu::Queue) -> Result<Self, wasm_bindgen::JsValue> {
+    pub fn new(device: &wgpu::Device, queue: &wgpu::Queue, surface_format: wgpu::TextureFormat) -> Result<Self, wasm_bindgen::JsValue> {
         console_log!("Creating simulation...");
 
         // Generate initial particle data
@@ -152,7 +152,9 @@ impl Simulation {
             label: Some("Compute Pipeline"),
             layout: Some(&compute_pipeline_layout),
             module: &compute_shader,
-            entry_point: "update_particles",
+            entry_point: Some("update_particles"),
+            compilation_options: wgpu::PipelineCompilationOptions::default(),
+            cache: None,
         });
 
         // Create render pipeline
@@ -168,18 +170,21 @@ impl Simulation {
             layout: Some(&render_pipeline_layout),
             vertex: wgpu::VertexState {
                 module: &render_shader,
-                entry_point: "vs_main",
+                entry_point: Some("vs_main"),
                 buffers: &[],
+                compilation_options: wgpu::PipelineCompilationOptions::default(),
             },
             fragment: Some(wgpu::FragmentState {
                 module: &render_shader,
-                entry_point: "fs_main",
+                entry_point: Some("fs_main"),
                 targets: &[Some(wgpu::ColorTargetState {
-                    format: wgpu::TextureFormat::Bgra8UnormSrgb,
+                    format: surface_format,
                     blend: Some(wgpu::BlendState::ALPHA_BLENDING),
                     write_mask: wgpu::ColorWrites::ALL,
                 })],
+                compilation_options: wgpu::PipelineCompilationOptions::default(),
             }),
+            cache: None,
             primitive: wgpu::PrimitiveState {
                 topology: wgpu::PrimitiveTopology::PointList,
                 strip_index_format: None,

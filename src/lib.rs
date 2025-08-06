@@ -41,7 +41,7 @@ impl AppState {
         console_log!("Initializing Galaxy Simulation...");
 
         let graphics = Graphics::new(canvas).await?;
-        let simulation = Simulation::new(&graphics.device, &graphics.queue)?;
+        let simulation = Simulation::new(&graphics.device, &graphics.queue, graphics.config.format)?;
         let camera = Camera::new();
         let input_handler = InputHandler::new()?;
 

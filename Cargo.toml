@@ -6,11 +6,14 @@ authors = ["Robert Gilks <robert@example.com>"]
 description = "A GPU-accelerated galaxy simulation in Rust with WebGPU"
 license = "MIT"
 
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
+
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
-wgpu = { version = "0.19", features = ["webgl"] }
+wgpu = { version = "24.0", features = ["webgl"] }
 wasm-bindgen = "0.2"
 wasm-bindgen-futures = "0.4"
 web-sys = { version = "0.3", features = [

@@ -14,11 +14,10 @@ impl Graphics {
         console_log!("Setting up WebGPU...");
 
         // Create WebGPU instance
-        let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
+        let instance = wgpu::Instance::new(&wgpu::InstanceDescriptor {
             backends: wgpu::Backends::BROWSER_WEBGPU,
-            dx12_shader_compiler: Default::default(),
             flags: wgpu::InstanceFlags::default(),
-            gles_minor_version: wgpu::Gles3MinorVersion::Automatic,
+            backend_options: wgpu::BackendOptions::default(),
         });
 
         // Create surface from canvas
@@ -34,7 +33,7 @@ impl Graphics {
                 force_fallback_adapter: false,
             })
             .await
-            .ok_or_else(|| JsValue::from_str("Failed to find an appropriate adapter"))?;
+            .unwrap_or_else(|| panic!("Failed to find an appropriate adapter"));
 
         console_log!("Adapter: {:?}", adapter.get_info());
 
@@ -53,7 +52,7 @@ impl Graphics {
         let surface_format = surface_caps
             .formats
             .iter()
-            .find(|f| f.is_srgb())
+            .find(|f| !f.is_srgb())
             .copied()
             .unwrap_or(surface_caps.formats[0]);
 
