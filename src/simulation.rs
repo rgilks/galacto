@@ -57,7 +57,7 @@ impl Simulation {
         // Create simulation parameters
         let params = SimulationParams {
             dt: 0.016,   // ~60fps
-            gm: 50000.0, // Gravitational parameter
+            gm: 40000.0, // Reduced gravitational parameter for more stable orbits
             particle_count: NUM_PARTICLES,
             _padding: 0,
         };
@@ -273,11 +273,20 @@ impl Simulation {
             let x = radius * angle.cos();
             let y = radius * angle.sin();
 
-            // Circular orbital velocity in the xy-plane (simplified)
-            let orbital_speed = (50000.0 / radius).sqrt() * 0.8; // Reduced for stability
-            let vx = -orbital_speed * angle.sin() + rng.gen_range(-10.0..10.0);
-            let vy = orbital_speed * angle.cos() + rng.gen_range(-10.0..10.0);
-            let vz = rng.gen_range(-5.0..5.0); // Small z-velocity for 3D motion
+            // Calculate proper circular orbital velocity for stable orbits
+            // For circular orbit: v = sqrt(GM/r)
+            let gm = 40000.0; // Same as simulation gravitational parameter
+            let orbital_speed = (gm / radius).sqrt();
+            
+            // Create tangential velocity vector (perpendicular to radius)
+            let vx = -orbital_speed * angle.sin();
+            let vy = orbital_speed * angle.cos();
+            
+            // Add small random perturbations for more realistic motion
+            let perturbation_scale = orbital_speed * 0.05; // 5% perturbation
+            let vx = vx + rng.gen_range(-perturbation_scale..perturbation_scale);
+            let vy = vy + rng.gen_range(-perturbation_scale..perturbation_scale);
+            let vz = rng.gen_range(-2.0..2.0); // Small z-velocity for 3D motion
 
             particles.push(Particle {
                 position: [x, y, z],
@@ -287,19 +296,20 @@ impl Simulation {
             // Log first few particles for debugging
             if i < 5 {
                 console_log!(
-                    "Particle {}: pos=({:.1}, {:.1}, {:.1}), vel=({:.1}, {:.1}, {:.1})",
+                    "Particle {}: pos=({:.1}, {:.1}, {:.1}), vel=({:.1}, {:.1}, {:.1}), orbital_speed={:.1}",
                     i,
                     x,
                     y,
                     z,
                     vx,
                     vy,
-                    vz
+                    vz,
+                    orbital_speed
                 );
             }
         }
 
-        console_log!("Generated {} particles", NUM_PARTICLES);
+        console_log!("Generated {} particles with stable orbital velocities", NUM_PARTICLES);
         particles
     }
 

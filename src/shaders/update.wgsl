@@ -38,8 +38,8 @@ fn update_particles(@builtin(global_invocation_id) gid: vec3<u32>) {
     // Gravitational acceleration towards center: a = -GM/r^3 * position_vector
     let acceleration = -params.gm * inv_r3 * particle.position;
     
-    // Add small amount of drag to prevent runaway velocities
-    let drag = 0.999;
+    // Add very small amount of drag to prevent runaway velocities
+    let drag = 0.9995; // Reduced drag to maintain orbital motion
     
     // Euler integration
     particle.velocity = particle.velocity * drag + acceleration * params.dt;
