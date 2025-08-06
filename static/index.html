@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -80,70 +80,6 @@
     <!-- Main canvas -->
     <canvas id="gpu-canvas"></canvas>
 
-    <!-- Controls overlay -->
-    <div class="controls">
-      <div class="controls-header">
-        <h3>Galaxy Simulation</h3>
-        <button id="toggle-controls" class="toggle-btn">⚙️</button>
-      </div>
-
-      <div id="controls-panel" class="controls-panel">
-        <div class="control-group">
-          <h4>Simulation</h4>
-          <button id="pause-btn" class="control-btn">⏸️ Pause (Space)</button>
-          <button id="reset-btn" class="control-btn">🔄 Reset (R)</button>
-        </div>
-
-        <div class="control-group">
-          <h4>Camera</h4>
-          <p class="control-hint">🖱️ Drag to pan • 🏃 Scroll to zoom</p>
-        </div>
-
-        <div class="control-group">
-          <h4>Info</h4>
-          <div class="info-item">
-            <span class="info-label">Particles:</span>
-            <span class="info-value">16,384</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">FPS:</span>
-            <span class="info-value" id="fps-display">--</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Instructions overlay (shown on first visit) -->
-    <div id="instructions" class="instructions">
-      <div class="instructions-content">
-        <h2>🌌 Galaxy Simulation</h2>
-        <p>
-          Watch thousands of stars orbit around a central mass in this
-          GPU-accelerated simulation!
-        </p>
-
-        <div class="instructions-controls">
-          <h3>Controls:</h3>
-          <ul>
-            <li><strong>Mouse drag:</strong> Pan the camera</li>
-            <li><strong>Mouse wheel:</strong> Zoom in/out</li>
-            <li><strong>Spacebar:</strong> Pause/resume simulation</li>
-            <li><strong>R key:</strong> Reset camera</li>
-          </ul>
-        </div>
-
-        <div class="instructions-tech">
-          <h3>Technology:</h3>
-          <p>
-            Built with Rust 🦀, WebAssembly, and WebGPU for maximum performance.
-          </p>
-          <p>All physics calculations run on your GPU!</p>
-        </div>
-
-        <button id="start-btn" class="start-btn">🚀 Start Simulation</button>
-      </div>
-    </div>
-
     <script type="module">
       // Check for WebGPU support before loading WASM
       async function checkWebGPUSupport() {
@@ -173,7 +109,6 @@
         const loadingEl = document.getElementById("loading");
         const errorEl = document.getElementById("error");
         const errorDetailsEl = document.getElementById("error-details");
-        const instructionsEl = document.getElementById("instructions");
 
         try {
           // Check WebGPU support
@@ -192,48 +127,12 @@
 
           // Hide loading screen
           loadingEl.style.display = "none";
-
-          // Show instructions on first visit
-          if (!localStorage.getItem("galaxy-sim-visited")) {
-            instructionsEl.style.display = "flex";
-            localStorage.setItem("galaxy-sim-visited", "true");
-          } else {
-            instructionsEl.style.display = "none";
-          }
-
-          // Set up UI event handlers
-          setupUI();
         } catch (error) {
           console.error("Failed to initialize application:", error);
           loadingEl.style.display = "none";
           errorEl.style.display = "block";
           errorDetailsEl.innerHTML = `<p><strong>Error:</strong> ${error.message}</p>`;
         }
-      }
-
-      function setupUI() {
-        const startBtn = document.getElementById("start-btn");
-        const instructionsEl = document.getElementById("instructions");
-        const toggleBtn = document.getElementById("toggle-controls");
-        const controlsPanel = document.getElementById("controls-panel");
-
-        // Start button
-        startBtn?.addEventListener("click", () => {
-          instructionsEl.style.display = "none";
-        });
-
-        // Toggle controls
-        toggleBtn?.addEventListener("click", () => {
-          const isVisible = controlsPanel.style.display !== "none";
-          controlsPanel.style.display = isVisible ? "none" : "block";
-        });
-
-        // Close instructions when clicking outside
-        instructionsEl?.addEventListener("click", (e) => {
-          if (e.target === instructionsEl) {
-            instructionsEl.style.display = "none";
-          }
-        });
       }
 
       // Start the application

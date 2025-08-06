@@ -4,7 +4,7 @@ use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
 use wgpu::util::DeviceExt;
 
-const NUM_PARTICLES: u32 = 16384;
+const NUM_PARTICLES: u32 = 131072;
 const WORKGROUP_SIZE: u32 = 64;
 
 #[repr(C)]
@@ -24,7 +24,7 @@ pub struct SimulationParams {
 }
 
 pub struct Simulation {
-    pub particle_buffer: wgpu::Buffer,
+    particle_buffer: wgpu::Buffer,
     pub params_buffer: wgpu::Buffer,
     pub compute_pipeline: wgpu::ComputePipeline,
     pub render_pipeline: wgpu::RenderPipeline,
@@ -37,7 +37,7 @@ pub struct Simulation {
 impl Simulation {
     pub fn new(
         device: &wgpu::Device,
-        queue: &wgpu::Queue,
+        _queue: &wgpu::Queue,
         surface_format: wgpu::TextureFormat,
     ) -> Result<Self, wasm_bindgen::JsValue> {
         console_log!("Creating simulation...");
@@ -244,7 +244,18 @@ impl Simulation {
             ],
         });
 
-        console_log!("Simulation created with {} particles", NUM_PARTICLES);
+        console_log!("🌌 Galaxy Simulation initialized!");
+        console_log!(
+            "📊 Particle count: {} ({}K)",
+            NUM_PARTICLES,
+            NUM_PARTICLES / 1000
+        );
+        console_log!(
+            "⚡ Workgroups: {} ({} particles per workgroup)",
+            (NUM_PARTICLES + WORKGROUP_SIZE - 1) / WORKGROUP_SIZE,
+            WORKGROUP_SIZE
+        );
+        console_log!("🎯 Ready to simulate gravitational dynamics!");
 
         Ok(Self {
             particle_buffer,
@@ -259,62 +270,31 @@ impl Simulation {
     }
 
     fn generate_initial_particles() -> Vec<Particle> {
+        console_log!("🎲 Generating {} particles...", NUM_PARTICLES);
         let mut rng = StdRng::seed_from_u64(42);
         let mut particles = Vec::with_capacity(NUM_PARTICLES as usize);
 
-        // Ring parameters
-        let ring_radius = 200.0; // Center radius of the ring
-        let ring_width = 50.0;   // Width of the ring (radius variation)
-        let ring_thickness = 10.0; // Thickness in z-direction
-
         for i in 0..NUM_PARTICLES {
-            // Create a ring distribution
-            let radius = ring_radius + rng.gen_range(-ring_width/2.0..ring_width/2.0);
-            let angle = rng.gen_range(0.0..2.0 * std::f32::consts::PI);
+            let z = 20.0;
+            let x = rng.gen_range(-20.0..20.0);
+            let y = rng.gen_range(-20.0..20.0);
 
-            // Add minimal thickness to the ring (z-coordinate)
-            let z = rng.gen_range(-ring_thickness/2.0..ring_thickness/2.0);
-
-            let x = radius * angle.cos();
-            let y = radius * angle.sin();
-
-            // Calculate proper circular orbital velocity for stable orbits
-            // For circular orbit: v = sqrt(GM/r)
-            let gm = 40000.0; // Must match SimulationParams.gm
-            let orbital_speed = (gm / radius).sqrt();
-            
-            // Create tangential velocity vector (perpendicular to radius)
-            let vx = -orbital_speed * angle.sin();
-            let vy = orbital_speed * angle.cos();
-            
-            // Add very small random perturbations for more uniform ring motion
-            let perturbation_scale = orbital_speed * 0.01; // 1% perturbation (reduced from 5%)
-            let vx = vx + rng.gen_range(-perturbation_scale..perturbation_scale);
-            let vy = vy + rng.gen_range(-perturbation_scale..perturbation_scale);
-            let vz = rng.gen_range(-0.5..0.5); // Very small z-velocity for minimal 3D motion
+            // let vx = rng.gen_range(-10.0..10.0);
+            // let vy = rng.gen_range(-10.0..10.0);
+            // let vz = rng.gen_range(-10.0..10.0);
 
             particles.push(Particle {
                 position: [x, y, z],
-                velocity: [vx, vy, vz],
+                velocity: [0.0, 0.0, 0.0],
             });
 
-            // Log first few particles for debugging
-            if i < 5 {
-                console_log!(
-                    "Particle {}: pos=({:.1}, {:.1}, {:.1}), vel=({:.1}, {:.1}, {:.1}), orbital_speed={:.1}",
-                    i,
-                    x,
-                    y,
-                    z,
-                    vx,
-                    vy,
-                    vz,
-                    orbital_speed
-                );
+            // Log progress every 10K particles
+            if (i + 1) % 10000 == 0 {
+                console_log!("📈 Generated {} particles...", i + 1);
             }
         }
 
-        console_log!("Generated {} particles in a rotating ring with stable orbital velocities", NUM_PARTICLES);
+        console_log!("✅ All {} particles generated successfully!", NUM_PARTICLES);
         particles
     }
 

@@ -40,6 +40,7 @@ cgmath = "0.18"
 bytemuck = { version = "1.0", features = ["derive"] }
 rand = "0.8"
 getrandom = { version = "0.2", features = ["js"] }
+raw-window-handle = "0.6"
 
 # Future multithreading support (commented out initially for compatibility)
 # rayon = "1.8"
@@ -55,6 +56,7 @@ optional = true
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 console_log = "1.0"
+raw-window-handle = { version = "0.6", features = ["wasm-bindgen-0-2"] }
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 pollster = "0.3"

@@ -22,12 +22,22 @@ impl Graphics {
             backend_options: wgpu::BackendOptions::default(),
         });
 
-        // Create surface from canvas
-        let surface = instance
-            .create_surface(wgpu::SurfaceTarget::Canvas(canvas))
-            .map_err(|e| JsValue::from_str(&format!("Failed to create surface: {:?}", e)))?;
+        let canvas_handle = unsafe {
+            raw_window_handle::WebCanvasWindowHandle::new(std::ptr::NonNull::new_unchecked(
+                &canvas as *const _ as *mut std::ffi::c_void,
+            ))
+        };
+        let surface = unsafe {
+            instance
+                .create_surface_unsafe(wgpu::SurfaceTargetUnsafe::RawHandle {
+                    raw_display_handle: raw_window_handle::RawDisplayHandle::Web(
+                        raw_window_handle::WebDisplayHandle::new(),
+                    ),
+                    raw_window_handle: raw_window_handle::RawWindowHandle::WebCanvas(canvas_handle),
+                })
+                .map_err(|e| JsValue::from_str(&format!("Failed to create surface: {:?}", e)))?
+        };
 
-        // Request adapter
         let adapter = instance
             .request_adapter(&wgpu::RequestAdapterOptions {
                 power_preference: wgpu::PowerPreference::HighPerformance,

@@ -13,8 +13,6 @@ pub struct InputState {
     pub pause_pressed: bool,
     pub reset_pressed: bool,
     pub running: bool,
-    pub rotation_x: f32,
-    pub rotation_y: f32,
     pub is_rotating: bool,
 }
 
@@ -28,8 +26,6 @@ impl InputState {
             pause_pressed: false,
             reset_pressed: false,
             running: true,
-            rotation_x: 0.0,
-            rotation_y: 0.0,
             is_rotating: false,
         }
     }
@@ -95,7 +91,7 @@ impl InputHandler {
         // Mouse up event
         {
             let state = self.state.clone();
-            let closure = Closure::wrap(Box::new(move |event: web_sys::Event| {
+            let closure = Closure::wrap(Box::new(move |_event: web_sys::Event| {
                 let mut state = state.borrow_mut();
                 state.is_dragging = false;
                 state.is_rotating = false;
@@ -201,9 +197,7 @@ impl InputHandler {
         }
     }
 
-    pub fn is_running(&self) -> bool {
-        self.state.borrow().running
-    }
+
 
     pub fn pause_toggled(&self) -> bool {
         let mut state = self.state.borrow_mut();

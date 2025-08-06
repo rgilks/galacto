@@ -1,4 +1,4 @@
-use cgmath::{ortho, perspective, Deg, EuclideanSpace, Matrix4, Point3, SquareMatrix, Vector3};
+use cgmath::{ortho, perspective, Deg, EuclideanSpace, Matrix4, Point3, Vector3};
 
 pub struct Camera {
     pub position: Vector3<f32>,
@@ -88,42 +88,5 @@ impl Camera {
 
             ortho(left, right, bottom, top, -1000.0, 1000.0)
         }
-    }
-
-    pub fn world_to_screen(
-        &self,
-        world_pos: Vector3<f32>,
-        screen_width: f32,
-        screen_height: f32,
-    ) -> Vector3<f32> {
-        let mvp = self.build_view_projection_matrix();
-        let clip_pos = mvp * world_pos.extend(1.0);
-
-        // Perspective divide
-        let ndc = clip_pos.truncate() / clip_pos.w;
-
-        // Convert to screen coordinates
-        Vector3::new(
-            (ndc.x + 1.0) * 0.5 * screen_width,
-            (1.0 - ndc.y) * 0.5 * screen_height,
-            ndc.z,
-        )
-    }
-
-    pub fn screen_to_world(
-        &self,
-        screen_pos: Vector3<f32>,
-        screen_width: f32,
-        screen_height: f32,
-    ) -> Vector3<f32> {
-        // Convert screen to NDC
-        let ndc_x = (screen_pos.x / screen_width) * 2.0 - 1.0;
-        let ndc_y = 1.0 - (screen_pos.y / screen_height) * 2.0;
-
-        let mvp = self.build_view_projection_matrix();
-        let inv_mvp = mvp.invert().unwrap_or(Matrix4::from_scale(1.0));
-
-        let world_pos = inv_mvp * cgmath::Vector4::new(ndc_x, ndc_y, 0.0, 1.0);
-        world_pos.truncate() / world_pos.w
     }
 }

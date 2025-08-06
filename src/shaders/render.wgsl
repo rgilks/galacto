@@ -29,37 +29,14 @@ fn vs_main(@builtin(vertex_index) vertex_index: u32) -> VertexOutput {
     
     // Color based on velocity magnitude (speed coloring)
     let velocity_magnitude = length(particle.velocity);
-    let speed_factor = min(velocity_magnitude / 200.0, 1.0);
-    
-    // Create color gradient: blue (slow) -> cyan -> yellow -> red (fast)
-    var color: vec3<f32>;
-    if (speed_factor < 0.5) {
-        // Blue to cyan - much brighter
-        let t = speed_factor * 2.0;
-        color = mix(vec3<f32>(0.4, 0.6, 1.0), vec3<f32>(0.2, 1.0, 1.0), t);
-    } else {
-        // Cyan to yellow to red - much brighter
-        let t = (speed_factor - 0.5) * 2.0;
-        color = mix(vec3<f32>(0.2, 1.0, 1.0), vec3<f32>(1.0, 1.0, 0.4), t);
-        if (t > 0.7) {
-            let t2 = (t - 0.7) / 0.3;
-            color = mix(color, vec3<f32>(1.0, 0.5, 0.2), t2);
-        }
-    }
     
     // Boost brightness significantly
-    color = color * 8.0; // Much brighter!
-    
-    // Add depth-based coloring for 3D effect
-    let depth_factor = (particle.position.z + 600.0) / 1200.0; // Normalize z to 0-1
-    let depth_color = mix(vec3<f32>(0.2, 0.2, 0.5), vec3<f32>(1.0, 1.0, 1.0), depth_factor);
-    color = color * depth_color;
+    let color = vec3<f32>(1.0, 1.0, 1.0);
     
     var out: VertexOutput;
     out.clip_position = clip_position;
     out.color = color;
     out.velocity_magnitude = velocity_magnitude;
-    out.depth = depth_factor;
     
     return out;
 }
