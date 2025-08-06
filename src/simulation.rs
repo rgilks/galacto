@@ -4,7 +4,7 @@ use rand::rngs::StdRng;
 use rand::{Rng, SeedableRng};
 use wgpu::util::DeviceExt;
 
-const NUM_PARTICLES: u32 = 4096;
+const NUM_PARTICLES: u32 = 16384;
 const WORKGROUP_SIZE: u32 = 64;
 
 #[repr(C)]
@@ -273,11 +273,17 @@ impl Simulation {
                 position: [x, y],
                 velocity: [vx, vy],
             });
-            
+
             // Log first few particles for debugging
             if i < 5 {
-                console_log!("Particle {}: pos=({:.1}, {:.1}), vel=({:.1}, {:.1})", 
-                    i, x, y, vx, vy);
+                console_log!(
+                    "Particle {}: pos=({:.1}, {:.1}), vel=({:.1}, {:.1})",
+                    i,
+                    x,
+                    y,
+                    vx,
+                    vy
+                );
             }
         }
 
