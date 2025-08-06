@@ -1,0 +1,357 @@
+/* Galaxy Simulation Styles */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: #000;
+  overflow: hidden;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #fff;
+}
+
+#gpu-canvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  cursor: grab;
+}
+
+#gpu-canvas:active {
+  cursor: grabbing;
+}
+
+/* Loading Screen */
+.loading {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  text-align: center;
+  z-index: 1000;
+}
+
+.loader {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top: 3px solid #fff;
+  border-radius: 50%;
+  margin: 20px auto;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error Display */
+.error {
+  color: #ff4444;
+  background: rgba(0, 0, 0, 0.9);
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 600px;
+  border: 1px solid #ff4444;
+}
+
+.error ul {
+  text-align: left;
+  margin: 15px 0;
+}
+
+.error li {
+  margin: 5px 0;
+}
+
+.error code {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+/* Controls Overlay */
+.controls {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 0;
+  min-width: 200px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  z-index: 100;
+}
+
+.controls-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.controls-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 5px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.controls-panel {
+  padding: 20px;
+}
+
+.control-group {
+  margin-bottom: 20px;
+}
+
+.control-group:last-child {
+  margin-bottom: 0;
+}
+
+.control-group h4 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ccc;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.control-btn {
+  display: block;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  transition: all 0.2s;
+}
+
+.control-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.control-btn:active {
+  transform: scale(0.98);
+}
+
+.control-hint {
+  margin: 0;
+  font-size: 12px;
+  color: #aaa;
+  line-height: 1.4;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.info-label {
+  color: #ccc;
+}
+
+.info-value {
+  font-weight: 600;
+  font-family: monospace;
+}
+
+/* Instructions Overlay */
+.instructions {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.instructions-content {
+  max-width: 500px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+  animation: fadeInUp 0.6s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.instructions-content h2 {
+  margin: 0 0 20px 0;
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.instructions-content p {
+  margin: 0 0 20px 0;
+  line-height: 1.6;
+  color: #ccc;
+}
+
+.instructions-controls {
+  text-align: left;
+  margin: 30px 0;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.instructions-controls h3 {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  color: #fff;
+}
+
+.instructions-controls ul {
+  margin: 0;
+  padding: 0 0 0 20px;
+}
+
+.instructions-controls li {
+  margin: 8px 0;
+  line-height: 1.5;
+  color: #ccc;
+}
+
+.instructions-tech {
+  text-align: left;
+  margin: 20px 0;
+}
+
+.instructions-tech h3 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  color: #fff;
+}
+
+.instructions-tech p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #aaa;
+}
+
+.start-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: #fff;
+  padding: 15px 30px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 20px;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.start-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.start-btn:active {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .controls {
+    top: 10px;
+    right: 10px;
+    min-width: 180px;
+  }
+
+  .instructions-content {
+    margin: 20px;
+    padding: 30px 25px;
+    max-width: none;
+  }
+
+  .instructions-content h2 {
+    font-size: 24px;
+  }
+
+  .controls-header {
+    padding: 12px 15px;
+  }
+
+  .controls-panel {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .controls {
+    position: fixed;
+    bottom: 20px;
+    top: auto;
+    left: 20px;
+    right: 20px;
+    min-width: auto;
+  }
+
+  .instructions-content {
+    padding: 25px 20px;
+  }
+
+  .instructions-controls {
+    padding: 15px;
+  }
+}

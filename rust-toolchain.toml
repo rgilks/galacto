@@ -1,0 +1,12 @@
+# Pin to a specific nightly for future threading support
+# Uncomment when enabling wasm-bindgen-rayon
+# [toolchain]
+# channel = "nightly-2024-08-02"
+# components = ["rustfmt", "clippy"]
+# targets = ["wasm32-unknown-unknown"]
+
+# For now, use stable
+[toolchain]
+channel = "stable"
+components = ["rustfmt", "clippy"]
+targets = ["wasm32-unknown-unknown"]

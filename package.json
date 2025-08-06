@@ -1,0 +1,57 @@
+{
+  "name": "galaxy-sim",
+  "version": "0.1.0",
+  "description": "A GPU-accelerated galaxy simulation in Rust with WebGPU",
+  "main": "server.js",
+  "scripts": {
+    "setup": "npm install && rustup target add wasm32-unknown-unknown",
+    "build": "npm run build:wasm && npm run build:web",
+    "build:wasm": "wasm-pack build --target web --release --out-dir pkg --out-name galaxy_sim",
+    "build:web": "npm run copy-assets && npm run cache-bust",
+    "cache-bust": "node scripts/cache-buster.js",
+    "build:desktop": "cargo build --release",
+    "copy-assets": "cp -r static/* pkg/ 2>/dev/null || xcopy /E /Y static pkg\\ 2>nul || echo 'Assets copied'",
+    "dev": "npm run build && npm run serve",
+    "dev:desktop": "cargo run --release",
+    "dev:desktop:headless": "cargo run --release -- --headless",
+    "serve": "node server.js",
+    "clean": "cargo clean && rm -rf pkg dist",
+    "test": "cargo test",
+    "lint": "cargo clippy",
+    "format": "cargo fmt",
+    "deploy": "wrangler deploy",
+    "dev:worker": "wrangler dev",
+    "check": "cargo check --target wasm32-unknown-unknown",
+    "check:native": "cargo check"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/galaxy-sim.git"
+  },
+  "keywords": [
+    "rust",
+    "webassembly",
+    "webgpu",
+    "wgpu",
+    "simulation",
+    "galaxy",
+    "physics",
+    "gpu-compute"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.2.1",
+    "wrangler": "^3.57.0"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "browserslist": [
+    "Chrome >= 113",
+    "Edge >= 113",
+    "Firefox >= 110",
+    "Safari >= 16.4"
+  ]
+}

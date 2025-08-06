@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Galaxy Simulation - WebGPU</title>
+    <meta
+      name="description"
+      content="A GPU-accelerated galaxy simulation featuring thousands of stars orbiting a central mass. Built with Rust, WebAssembly, and WebGPU."
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <style>
+      /* Inline critical CSS for faster loading */
+      body {
+        margin: 0;
+        padding: 0;
+        background: #000;
+        overflow: hidden;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      #gpu-canvas {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+      }
+
+      .loading {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #fff;
+        text-align: center;
+        z-index: 1000;
+      }
+
+      .error {
+        color: #ff4444;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 20px;
+        border-radius: 8px;
+        max-width: 600px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Loading screen -->
+    <div id="loading" class="loading">
+      <h2>Initializing Galaxy Simulation...</h2>
+      <p>Loading WebGPU and compiling shaders...</p>
+      <div class="loader"></div>
+    </div>
+
+    <!-- Error display -->
+    <div id="error" class="loading error" style="display: none">
+      <h2>WebGPU Not Supported</h2>
+      <p>
+        This simulation requires WebGPU support. Please ensure you're using a
+        modern browser with WebGPU enabled:
+      </p>
+      <ul style="text-align: left">
+        <li>
+          <strong>Chrome/Edge:</strong> Version 113+ (should work by default)
+        </li>
+        <li>
+          <strong>Firefox:</strong> Enable <code>dom.webgpu.enabled</code> in
+          about:config
+        </li>
+        <li><strong>Safari:</strong> WebGPU support may vary by version</li>
+      </ul>
+      <p>
+        You can also try visiting <code>chrome://flags/</code> and enabling
+        "Unsafe WebGPU" if the above doesn't work.
+      </p>
+      <div id="error-details"></div>
+    </div>
+
+    <!-- Main canvas -->
+    <canvas id="gpu-canvas"></canvas>
+
+    <!-- Controls overlay -->
+    <div class="controls">
+      <div class="controls-header">
+        <h3>Galaxy Simulation</h3>
+        <button id="toggle-controls" class="toggle-btn">⚙️</button>
+      </div>
+
+      <div id="controls-panel" class="controls-panel">
+        <div class="control-group">
+          <h4>Simulation</h4>
+          <button id="pause-btn" class="control-btn">⏸️ Pause (Space)</button>
+          <button id="reset-btn" class="control-btn">🔄 Reset (R)</button>
+        </div>
+
+        <div class="control-group">
+          <h4>Camera</h4>
+          <p class="control-hint">🖱️ Drag to pan • 🏃 Scroll to zoom</p>
+        </div>
+
+        <div class="control-group">
+          <h4>Info</h4>
+          <div class="info-item">
+            <span class="info-label">Particles:</span>
+            <span class="info-value">4,096</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">FPS:</span>
+            <span class="info-value" id="fps-display">--</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Instructions overlay (shown on first visit) -->
+    <div id="instructions" class="instructions">
+      <div class="instructions-content">
+        <h2>🌌 Galaxy Simulation</h2>
+        <p>
+          Watch thousands of stars orbit around a central mass in this
+          GPU-accelerated simulation!
+        </p>
+
+        <div class="instructions-controls">
+          <h3>Controls:</h3>
+          <ul>
+            <li><strong>Mouse drag:</strong> Pan the camera</li>
+            <li><strong>Mouse wheel:</strong> Zoom in/out</li>
+            <li><strong>Spacebar:</strong> Pause/resume simulation</li>
+            <li><strong>R key:</strong> Reset camera</li>
+          </ul>
+        </div>
+
+        <div class="instructions-tech">
+          <h3>Technology:</h3>
+          <p>
+            Built with Rust 🦀, WebAssembly, and WebGPU for maximum performance.
+          </p>
+          <p>All physics calculations run on your GPU!</p>
+        </div>
+
+        <button id="start-btn" class="start-btn">🚀 Start Simulation</button>
+      </div>
+    </div>
+
+    <script type="module">
+      // Check for WebGPU support before loading WASM
+      async function checkWebGPUSupport() {
+        if (!navigator.gpu) {
+          throw new Error("WebGPU not supported in this browser");
+        }
+
+        try {
+          const adapter = await navigator.gpu.requestAdapter();
+          if (!adapter) {
+            throw new Error("No WebGPU adapter found");
+          }
+
+          const device = await adapter.requestDevice();
+          if (!device) {
+            throw new Error("Failed to create WebGPU device");
+          }
+
+          return true;
+        } catch (error) {
+          throw new Error(`WebGPU initialization failed: ${error.message}`);
+        }
+      }
+
+      // Initialize the application
+      async function init() {
+        const loadingEl = document.getElementById("loading");
+        const errorEl = document.getElementById("error");
+        const errorDetailsEl = document.getElementById("error-details");
+        const instructionsEl = document.getElementById("instructions");
+
+        try {
+          // Check WebGPU support
+          await checkWebGPUSupport();
+
+          // Import and initialize the WASM module
+          const { default: init, initThreadPool } = await import(
+            "./galaxy_sim.js"
+          );
+          await init();
+
+          // Future: Initialize thread pool for multithreading
+          // if (typeof initThreadPool === 'function') {
+          //     await initThreadPool(navigator.hardwareConcurrency);
+          // }
+
+          // Hide loading screen
+          loadingEl.style.display = "none";
+
+          // Show instructions on first visit
+          if (!localStorage.getItem("galaxy-sim-visited")) {
+            instructionsEl.style.display = "flex";
+            localStorage.setItem("galaxy-sim-visited", "true");
+          } else {
+            instructionsEl.style.display = "none";
+          }
+
+          // Set up UI event handlers
+          setupUI();
+        } catch (error) {
+          console.error("Failed to initialize application:", error);
+          loadingEl.style.display = "none";
+          errorEl.style.display = "block";
+          errorDetailsEl.innerHTML = `<p><strong>Error:</strong> ${error.message}</p>`;
+        }
+      }
+
+      function setupUI() {
+        const startBtn = document.getElementById("start-btn");
+        const instructionsEl = document.getElementById("instructions");
+        const toggleBtn = document.getElementById("toggle-controls");
+        const controlsPanel = document.getElementById("controls-panel");
+
+        // Start button
+        startBtn?.addEventListener("click", () => {
+          instructionsEl.style.display = "none";
+        });
+
+        // Toggle controls
+        toggleBtn?.addEventListener("click", () => {
+          const isVisible = controlsPanel.style.display !== "none";
+          controlsPanel.style.display = isVisible ? "none" : "block";
+        });
+
+        // Close instructions when clicking outside
+        instructionsEl?.addEventListener("click", (e) => {
+          if (e.target === instructionsEl) {
+            instructionsEl.style.display = "none";
+          }
+        });
+      }
+
+      // Start the application
+      init().catch(console.error);
+
+      // Handle page visibility for performance
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          console.log("Page hidden - simulation continues");
+        } else {
+          console.log("Page visible - simulation active");
+        }
+      });
+    </script>
+  </body>
+</html>
