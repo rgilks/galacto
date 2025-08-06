@@ -262,31 +262,36 @@ impl Simulation {
         let mut rng = StdRng::seed_from_u64(42);
         let mut particles = Vec::with_capacity(NUM_PARTICLES as usize);
 
+        // Ring parameters
+        let ring_radius = 200.0; // Center radius of the ring
+        let ring_width = 50.0;   // Width of the ring (radius variation)
+        let ring_thickness = 10.0; // Thickness in z-direction
+
         for i in 0..NUM_PARTICLES {
-            // Create a 3D disk galaxy distribution with some thickness
-            let radius = rng.gen_range(50.0..400.0);
+            // Create a ring distribution
+            let radius = ring_radius + rng.gen_range(-ring_width/2.0..ring_width/2.0);
             let angle = rng.gen_range(0.0..2.0 * std::f32::consts::PI);
 
-            // Add some thickness to the disk (z-coordinate)
-            let z = rng.gen_range(-20.0..20.0);
+            // Add minimal thickness to the ring (z-coordinate)
+            let z = rng.gen_range(-ring_thickness/2.0..ring_thickness/2.0);
 
             let x = radius * angle.cos();
             let y = radius * angle.sin();
 
             // Calculate proper circular orbital velocity for stable orbits
             // For circular orbit: v = sqrt(GM/r)
-            let gm = 40000.0; // Same as simulation gravitational parameter
+            let gm = 40000.0; // Must match SimulationParams.gm
             let orbital_speed = (gm / radius).sqrt();
             
             // Create tangential velocity vector (perpendicular to radius)
             let vx = -orbital_speed * angle.sin();
             let vy = orbital_speed * angle.cos();
             
-            // Add small random perturbations for more realistic motion
-            let perturbation_scale = orbital_speed * 0.05; // 5% perturbation
+            // Add very small random perturbations for more uniform ring motion
+            let perturbation_scale = orbital_speed * 0.01; // 1% perturbation (reduced from 5%)
             let vx = vx + rng.gen_range(-perturbation_scale..perturbation_scale);
             let vy = vy + rng.gen_range(-perturbation_scale..perturbation_scale);
-            let vz = rng.gen_range(-2.0..2.0); // Small z-velocity for 3D motion
+            let vz = rng.gen_range(-0.5..0.5); // Very small z-velocity for minimal 3D motion
 
             particles.push(Particle {
                 position: [x, y, z],
@@ -309,7 +314,7 @@ impl Simulation {
             }
         }
 
-        console_log!("Generated {} particles with stable orbital velocities", NUM_PARTICLES);
+        console_log!("Generated {} particles in a rotating ring with stable orbital velocities", NUM_PARTICLES);
         particles
     }
 
