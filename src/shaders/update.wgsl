@@ -1,7 +1,7 @@
 // Compute shader for updating particle positions and velocities
 struct Particle {
-    position: vec2<f32>,
-    velocity: vec2<f32>,
+    position: vec3<f32>,
+    velocity: vec3<f32>,
 }
 
 struct Params {
@@ -29,7 +29,7 @@ fn update_particles(@builtin(global_invocation_id) gid: vec3<u32>) {
         // by giving them a special color or position
     }
     
-    // Calculate distance from center (0, 0)
+    // Calculate distance from center (0, 0, 0)
     let r2 = dot(particle.position, particle.position) + 1e-6; // Add small epsilon to avoid division by zero
     let r = sqrt(r2);
     let inv_r = 1.0 / r;
@@ -45,7 +45,7 @@ fn update_particles(@builtin(global_invocation_id) gid: vec3<u32>) {
     particle.velocity = particle.velocity * drag + acceleration * params.dt;
     particle.position = particle.position + particle.velocity * params.dt;
     
-    // Boundary conditions - bounce off edges
+    // Boundary conditions - bounce off edges in 3D
     let boundary = 600.0;
     if (abs(particle.position.x) > boundary) {
         particle.position.x = sign(particle.position.x) * boundary;
@@ -54,6 +54,10 @@ fn update_particles(@builtin(global_invocation_id) gid: vec3<u32>) {
     if (abs(particle.position.y) > boundary) {
         particle.position.y = sign(particle.position.y) * boundary;
         particle.velocity.y = -particle.velocity.y * 0.8;
+    }
+    if (abs(particle.position.z) > boundary) {
+        particle.position.z = sign(particle.position.z) * boundary;
+        particle.velocity.z = -particle.velocity.z * 0.8;
     }
     
     particles[index] = particle;

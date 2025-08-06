@@ -10,8 +10,8 @@ const WORKGROUP_SIZE: u32 = 64;
 #[repr(C)]
 #[derive(Copy, Clone, Debug, Pod, Zeroable)]
 pub struct Particle {
-    pub position: [f32; 2],
-    pub velocity: [f32; 2],
+    pub position: [f32; 3],
+    pub velocity: [f32; 3],
 }
 
 #[repr(C)]
@@ -198,7 +198,13 @@ impl Simulation {
                 polygon_mode: wgpu::PolygonMode::Fill,
                 conservative: false,
             },
-            depth_stencil: None,
+            depth_stencil: Some(wgpu::DepthStencilState {
+                format: wgpu::TextureFormat::Depth32Float,
+                depth_write_enabled: true,
+                depth_compare: wgpu::CompareFunction::Less,
+                stencil: wgpu::StencilState::default(),
+                bias: wgpu::DepthBiasState::default(),
+            }),
             multisample: wgpu::MultisampleState {
                 count: 1,
                 mask: !0,
@@ -257,32 +263,38 @@ impl Simulation {
         let mut particles = Vec::with_capacity(NUM_PARTICLES as usize);
 
         for i in 0..NUM_PARTICLES {
-            // Create a disk galaxy distribution
+            // Create a 3D disk galaxy distribution with some thickness
             let radius = rng.gen_range(50.0..400.0);
             let angle = rng.gen_range(0.0..2.0 * std::f32::consts::PI);
+
+            // Add some thickness to the disk (z-coordinate)
+            let z = rng.gen_range(-20.0..20.0);
 
             let x = radius * angle.cos();
             let y = radius * angle.sin();
 
-            // Circular orbital velocity (simplified)
+            // Circular orbital velocity in the xy-plane (simplified)
             let orbital_speed = (50000.0 / radius).sqrt() * 0.8; // Reduced for stability
             let vx = -orbital_speed * angle.sin() + rng.gen_range(-10.0..10.0);
             let vy = orbital_speed * angle.cos() + rng.gen_range(-10.0..10.0);
+            let vz = rng.gen_range(-5.0..5.0); // Small z-velocity for 3D motion
 
             particles.push(Particle {
-                position: [x, y],
-                velocity: [vx, vy],
+                position: [x, y, z],
+                velocity: [vx, vy, vz],
             });
 
             // Log first few particles for debugging
             if i < 5 {
                 console_log!(
-                    "Particle {}: pos=({:.1}, {:.1}), vel=({:.1}, {:.1})",
+                    "Particle {}: pos=({:.1}, {:.1}, {:.1}), vel=({:.1}, {:.1}, {:.1})",
                     i,
                     x,
                     y,
+                    z,
                     vx,
-                    vy
+                    vy,
+                    vz
                 );
             }
         }

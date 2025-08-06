@@ -8,8 +8,8 @@ A stunning GPU-accelerated galaxy simulation featuring thousands of stars orbiti
 
 - **🚀 GPU Acceleration**: All physics calculations run on your GPU using WebGPU compute shaders
 - **🦀 Rust Performance**: Written in Rust and compiled to WebAssembly for near-native speed
-- **🎮 Interactive Controls**: Pan, zoom, pause, and reset with intuitive mouse and keyboard controls
-- **🌈 Visual Effects**: Stars are colored based on their orbital velocity with smooth gradients
+- **🎮 Interactive 3D Controls**: Pan, zoom, rotate, pause, and reset with intuitive mouse and keyboard controls
+- **🌈 Visual Effects**: Stars are colored based on their orbital velocity with smooth gradients and depth-based effects
 - **📱 Responsive Design**: Works on desktop and mobile devices with WebGPU support
 - **☁️ Edge Deployment**: Ready for deployment on Cloudflare Workers for global distribution
 - **🧵 Future Threading**: Prepared for multi-threading with `wasm-bindgen-rayon` when browsers support it
@@ -20,12 +20,13 @@ A stunning GPU-accelerated galaxy simulation featuring thousands of stars orbiti
 
 ## 🎮 Controls
 
-| Input           | Action                           |
-| --------------- | -------------------------------- |
-| **Mouse Drag**  | Pan the camera around the galaxy |
-| **Mouse Wheel** | Zoom in and out                  |
-| **Spacebar**    | Pause/resume the simulation      |
-| **R Key**       | Reset camera to default position |
+| Input                | Action                              |
+| -------------------- | ----------------------------------- |
+| **Left Mouse Drag**  | Rotate the camera around the center |
+| **Right Mouse Drag** | Pan the camera around the galaxy    |
+| **Mouse Wheel**      | Zoom in and out                     |
+| **Spacebar**         | Pause/resume the simulation         |
+| **R Key**            | Reset camera to default position    |
 
 ## 🏗️ Architecture
 
@@ -33,16 +34,16 @@ A stunning GPU-accelerated galaxy simulation featuring thousands of stars orbiti
 
 - **Backend**: Rust with `wgpu` for WebGPU access
 - **Frontend**: WebAssembly with minimal JavaScript glue
-- **Graphics**: WGSL compute and render shaders
+- **Graphics**: WGSL compute and render shaders with depth testing
 - **Math**: `cgmath` for linear algebra operations
 - **Build**: `wasm-pack` for WebAssembly compilation
 - **Deploy**: Cloudflare Workers for edge distribution
 
 ### GPU Pipeline
 
-1. **Compute Shader** (`update.wgsl`): Updates particle positions and velocities in parallel
-2. **Render Shader** (`render.wgsl`): Draws particles with velocity-based coloring
-3. **Camera System**: 2D orthographic projection with pan/zoom controls
+1. **Compute Shader** (`update.wgsl`): Updates particle positions and velocities in 3D space
+2. **Render Shader** (`render.wgsl`): Draws particles with velocity-based coloring and depth effects
+3. **Camera System**: 3D perspective projection with pan/zoom/rotate controls
 
 ### Project Structure
 
@@ -50,15 +51,15 @@ A stunning GPU-accelerated galaxy simulation featuring thousands of stars orbiti
 galacto/
 ├── src/                    # Rust source code
 │   ├── lib.rs             # Main WASM entry point
-│   ├── graphics.rs        # WebGPU initialization and management
-│   ├── simulation.rs      # GPU simulation logic and buffers
-│   ├── camera.rs          # Camera transforms and controls
-│   ├── input.rs           # Event handling and user interaction
+│   ├── graphics.rs        # WebGPU initialization and depth texture management
+│   ├── simulation.rs      # GPU simulation logic and 3D particle buffers
+│   ├── camera.rs          # 3D camera transforms and rotation controls
+│   ├── input.rs           # Event handling and 3D user interaction
 │   ├── render.rs          # Rendering utilities
 │   ├── utils.rs           # Helper functions and performance monitoring
 │   └── shaders/           # WGSL compute and render shaders
-│       ├── update.wgsl    # Particle physics compute shader
-│       └── render.wgsl    # Particle rendering vertex/fragment shaders
+│       ├── update.wgsl    # 3D particle physics compute shader
+│       └── render.wgsl    # 3D particle rendering with depth effects
 ├── static/                 # Web assets
 │   ├── index.html         # Main application page
 │   └── styles.css         # UI styling and responsive layout
@@ -206,94 +207,53 @@ The project is prepared for WebAssembly threading support:
    build-std = ["panic_abort", "std"]
    ```
 
-3. **Uncomment dependencies**:
-
-   ```toml
-   # Cargo.toml
-   rayon = "1.8"
-   wasm-bindgen-rayon = { version = "1.2", features = ["no-bundler"] }
-   ```
-
-4. **Update HTML initialization**:
-   ```javascript
-   import init, { initThreadPool } from "./galaxy_sim.js";
-   await init();
-   await initThreadPool(navigator.hardwareConcurrency);
-   ```
-
-### Browser Requirements for Threading
-
-Threading requires Cross-Origin Isolation:
-
-- `Cross-Origin-Opener-Policy: same-origin`
-- `Cross-Origin-Embedder-Policy: require-corp`
-
-These headers are already configured in the development server and Cloudflare Worker.
-
-## ☁️ Deployment
-
-### Cloudflare Workers
-
-The project is configured for easy deployment to Cloudflare Workers:
-
-```bash
-# Deploy to production
-npm run deploy
-
-# Test worker locally
-npm run dev:worker
-```
-
-### Configuration
-
-Update `wrangler.toml`:
-
-```toml
-name = "your-galaxy-sim"
-# Add your account details and routes
-[[routes]]
-pattern = "*/*"
-zone_name = "your-domain.com"
-```
-
-### Alternative Deployment
-
-The app is a static web application and can be deployed anywhere:
-
-- **GitHub Pages**: Upload `pkg/` contents
-- **Netlify/Vercel**: Point to `pkg/` directory
-- **AWS S3**: Static website hosting
-- **Any CDN**: All files are self-contained
-
 ## 🔬 Physics Model
 
-### Gravitational Simulation
+### 3D Gravitational Simulation
 
-The simulation uses a simplified N-body gravitational model:
+The simulation uses a simplified 3D N-body gravitational model:
 
-1. **Central Mass**: Fixed gravitational source at origin
-2. **Particle Motion**: Euler integration with gravitational acceleration
-3. **Orbital Mechanics**: Circular orbital velocities with random perturbations
-4. **Boundary Conditions**: Elastic collisions with world boundaries
+1. **Central Mass**: Fixed gravitational source at origin (0, 0, 0)
+2. **3D Particle Motion**: Euler integration with 3D gravitational acceleration
+3. **Orbital Mechanics**: Circular orbital velocities in the xy-plane with z-axis thickness
+4. **Boundary Conditions**: Elastic collisions with 3D world boundaries
+5. **Depth Effects**: Particles have varying z-coordinates for realistic galaxy thickness
 
 ### Shader Implementation
 
 **Compute Shader** (`update.wgsl`):
 
 ```wgsl
-// Gravitational acceleration: a = -GM/r^3 * position_vector
+// 3D gravitational acceleration: a = -GM/r^3 * position_vector
 let acceleration = -params.gm * inv_r3 * particle.position;
 
-// Euler integration
+// 3D Euler integration
 particle.velocity = particle.velocity * drag + acceleration * params.dt;
 particle.position = particle.position + particle.velocity * params.dt;
+
+// 3D boundary conditions
+if (abs(particle.position.z) > boundary) {
+    particle.position.z = sign(particle.position.z) * boundary;
+    particle.velocity.z = -particle.velocity.z * 0.8;
+}
 ```
 
 **Render Shader** (`render.wgsl`):
 
+- 3D perspective transformation with depth testing
 - Velocity-based coloring (blue → cyan → yellow → red)
-- Point primitive rendering
-- Camera transformation
+- Depth-based alpha blending for 3D depth perception
+- Point primitive rendering with enhanced visibility
+
+### 3D Camera System
+
+The camera now supports full 3D perspective projection:
+
+- **Perspective Projection**: 45° field of view with depth testing
+- **Orbit Controls**: Right-click and drag to rotate around the center
+- **Pan Controls**: Left-click and drag to move the camera
+- **Zoom Controls**: Mouse wheel to adjust distance
+- **Depth Texture**: Proper depth testing for 3D rendering
 
 ## 🎨 Customization
 
@@ -302,7 +262,7 @@ particle.position = particle.position + particle.velocity * params.dt;
 Modify `simulation.rs`:
 
 ```rust
-const NUM_PARTICLES: u32 = 4096;  // Number of stars
+const NUM_PARTICLES: u32 = 16384;  // Number of stars
 let params = SimulationParams {
     dt: 0.016,          // Time step (60 FPS)
     gm: 50000.0,        // Gravitational strength
@@ -317,87 +277,32 @@ Modify `render.wgsl`:
 ```wgsl
 // Change color scheme
 let color = mix(vec3<f32>(0.2, 0.4, 1.0), vec3<f32>(1.0, 0.3, 0.0), speed_factor);
+
+// Adjust depth-based effects
+let depth_color = mix(vec3<f32>(0.2, 0.2, 0.5), vec3<f32>(1.0, 1.0, 1.0), depth_factor);
 ```
 
-### Galaxy Distribution
+### 3D Galaxy Distribution
 
 Modify particle generation in `simulation.rs`:
 
 ```rust
-// Create different galaxy shapes
-let radius = rng.gen_range(50.0..400.0);  // Disk galaxy
-// Or try: let radius = rng.gen_range(0.0..400.0).powf(0.5) * 400.0; // Dense center
+// Create 3D disk galaxy with thickness
+let radius = rng.gen_range(50.0..400.0);
+let z = rng.gen_range(-20.0..20.0);  // Galaxy thickness
+
+// Add z-velocity for 3D motion
+let vz = rng.gen_range(-5.0..5.0);
 ```
 
-## 🐛 Troubleshooting
+### Camera Controls
 
-### Common Issues
+Customize camera behavior in `camera.rs`:
 
-1. **"WebGPU not supported"**
+```rust
+// Adjust rotation sensitivity
+camera.rotate(delta_x * 0.01, delta_y * 0.01);
 
-   - Update your browser to the latest version
-   - Enable WebGPU flags as described above
-   - Try a different browser
-
-2. **Build errors**
-
-   ```bash
-   # Ensure correct Rust target
-   rustup target add wasm32-unknown-unknown
-
-   # Clean and rebuild
-   npm run clean && npm run build
-   ```
-
-3. **WASM loading errors**
-
-   - Use the provided development server (proper MIME types)
-   - Don't open `file://` URLs directly
-   - Check browser console for detailed errors
-
-4. **Performance issues**
-   - Reduce `NUM_PARTICLES` in `simulation.rs`
-   - Check if WebGPU is actually being used (not WebGL fallback)
-   - Monitor FPS in the UI controls
-
-### Getting Help
-
-- **Issues**: Open a GitHub issue with browser version and error details
-- **Discussions**: Use GitHub Discussions for questions and ideas
-- **Contributing**: See CONTRIBUTING.md (if available)
-
-## 🚧 Roadmap
-
-### Planned Features
-
-- **3D Visualization**: Perspective camera with orbit controls
-- **Multiple Galaxies**: Galaxy collision simulations
-- **Particle Types**: Different star types with varying properties
-- **Environmental Effects**: Dark matter, dust clouds, supernovae
-- **Data Export**: Save simulation states and recordings
-- **VR Support**: WebXR integration for immersive experience
-
-### Performance Improvements
-
-- **LOD System**: Level-of-detail for distant particles
-- **Culling**: Frustum and distance-based particle culling
-- **Instancing**: Hardware instancing for better GPU utilization
-- **Compute Optimization**: Shared memory and workgroup optimization
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- **Rust Community**: For the amazing ecosystem and tools
-- **WebGPU Team**: For bringing GPU computing to the web
-- **wgpu Developers**: For the excellent Rust graphics library
-- **Cloudflare**: For providing edge computing infrastructure
-- **Inspiration**: Based on the architecture of [rgilks/evo](https://github.com/rgilks/evo)
-
----
-
-**Built with ❤️ and 🦀 by the Galaxy Sim Team**
-
-_Watch the universe unfold in your browser!_ 🌌
+// Change perspective field of view
+let proj = perspective(Deg(45.0), self.aspect_ratio, 0.1, 2000.0);
+```
