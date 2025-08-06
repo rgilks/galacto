@@ -45,8 +45,8 @@ impl Camera {
         let zoom_factor = 1.0 + delta * 0.001;
         self.scale *= zoom_factor;
 
-        // Clamp zoom levels - prevent zooming out too far
-        self.scale = self.scale.clamp(0.1, 20.0);
+        // Clamp zoom levels - allow much closer zoom
+        self.scale = self.scale.clamp(0.1, 100.0);
     }
 
     pub fn reset(&mut self) {

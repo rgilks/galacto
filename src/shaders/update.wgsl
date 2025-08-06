@@ -17,10 +17,10 @@ struct Params {
 @compute @workgroup_size(64)
 fn update_particles(@builtin(global_invocation_id) gid: vec3<u32>) {
     let index = gid.x;
-    if (index >= params.particle_count) {
+    if index >= params.particle_count {
         return;
     }
-    
+
     var particle = particles[index];
     
     // Calculate distance from center (0, 0, 0)
@@ -31,28 +31,35 @@ fn update_particles(@builtin(global_invocation_id) gid: vec3<u32>) {
     
     // Gravitational acceleration towards center: a = -GM/r^3 * position_vector
     let acceleration = -params.gm * inv_r3 * particle.position;
-    
-    // No drag for stable orbital motion
-    let drag = 1.0; // No energy loss to maintain stable orbits
+
+    let drag = 1.00; // No energy loss to maintain stable orbits
     
     // Euler integration
     particle.velocity = particle.velocity * drag + acceleration * params.dt;
+    
+    // Clamp velocity to maximum speed
+    let max_velocity = 140.0;
+    let current_speed = length(particle.velocity);
+    if current_speed > max_velocity {
+        particle.velocity = normalize(particle.velocity) * max_velocity;
+    }
+
     particle.position = particle.position + particle.velocity * params.dt;
     
     // Boundary conditions - bounce off edges in 3D
     let boundary = 600.0;
-    if (abs(particle.position.x) > boundary) {
+    if abs(particle.position.x) > boundary {
         particle.position.x = sign(particle.position.x) * boundary;
         particle.velocity.x = -particle.velocity.x * 0.1;
     }
-    if (abs(particle.position.y) > boundary) {
+    if abs(particle.position.y) > boundary {
         particle.position.y = sign(particle.position.y) * boundary;
         particle.velocity.y = -particle.velocity.y * 0.1;
     }
-    if (abs(particle.position.z) > boundary) {
+    if abs(particle.position.z) > boundary {
         particle.position.z = sign(particle.position.z) * boundary;
         particle.velocity.z = -particle.velocity.z * 0.1;
     }
-    
+
     particles[index] = particle;
 }

@@ -275,17 +275,18 @@ impl Simulation {
         let mut particles = Vec::with_capacity(NUM_PARTICLES as usize);
 
         for i in 0..NUM_PARTICLES {
-            let z = 20.0;
-            let x = rng.gen_range(-20.0..20.0);
-            let y = rng.gen_range(-20.0..20.0);
+            let z = 100.0;
+            let x = 10.0;
+            let y = rng.gen_range(-150.0..150.0);
 
-            // let vx = rng.gen_range(-10.0..10.0);
-            // let vy = rng.gen_range(-10.0..10.0);
-            // let vz = rng.gen_range(-10.0..10.0);
+    
+
+            // Calculate perpendicular velocity (tangential to radius)
+            let vx = 150.0;
 
             particles.push(Particle {
                 position: [x, y, z],
-                velocity: [0.0, 0.0, 0.0],
+                velocity: [vx, 0.0, 0.0],
             });
 
             // Log progress every 10K particles
