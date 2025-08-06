@@ -35,7 +35,11 @@ pub struct Simulation {
 }
 
 impl Simulation {
-    pub fn new(device: &wgpu::Device, queue: &wgpu::Queue, surface_format: wgpu::TextureFormat) -> Result<Self, wasm_bindgen::JsValue> {
+    pub fn new(
+        device: &wgpu::Device,
+        queue: &wgpu::Queue,
+        surface_format: wgpu::TextureFormat,
+    ) -> Result<Self, wasm_bindgen::JsValue> {
         console_log!("Creating simulation...");
 
         // Generate initial particle data
@@ -252,7 +256,7 @@ impl Simulation {
         let mut rng = StdRng::seed_from_u64(42);
         let mut particles = Vec::with_capacity(NUM_PARTICLES as usize);
 
-        for _ in 0..NUM_PARTICLES {
+        for i in 0..NUM_PARTICLES {
             // Create a disk galaxy distribution
             let radius = rng.gen_range(50.0..400.0);
             let angle = rng.gen_range(0.0..2.0 * std::f32::consts::PI);
@@ -269,8 +273,15 @@ impl Simulation {
                 position: [x, y],
                 velocity: [vx, vy],
             });
+            
+            // Log first few particles for debugging
+            if i < 5 {
+                console_log!("Particle {}: pos=({:.1}, {:.1}), vel=({:.1}, {:.1})", 
+                    i, x, y, vx, vy);
+            }
         }
 
+        console_log!("Generated {} particles", NUM_PARTICLES);
         particles
     }
 
@@ -287,11 +298,8 @@ impl Simulation {
 
         compute_pass.set_pipeline(&self.compute_pipeline);
         compute_pass.set_bind_group(0, &self.compute_bind_group, &[]);
-        compute_pass.dispatch_workgroups(
-            (NUM_PARTICLES + WORKGROUP_SIZE - 1) / WORKGROUP_SIZE,
-            1,
-            1,
-        );
+        let workgroups = (NUM_PARTICLES + WORKGROUP_SIZE - 1) / WORKGROUP_SIZE;
+        compute_pass.dispatch_workgroups(workgroups, 1, 1);
     }
 
     pub fn render_pass<'a>(&'a self, render_pass: &mut wgpu::RenderPass<'a>) {

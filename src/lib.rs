@@ -41,7 +41,8 @@ impl AppState {
         console_log!("Initializing Galaxy Simulation...");
 
         let graphics = Graphics::new(canvas).await?;
-        let simulation = Simulation::new(&graphics.device, &graphics.queue, graphics.config.format)?;
+        let simulation =
+            Simulation::new(&graphics.device, &graphics.queue, graphics.config.format)?;
         let camera = Camera::new();
         let input_handler = InputHandler::new()?;
 
@@ -56,24 +57,38 @@ impl AppState {
     }
 
     pub fn update(&mut self, current_time: f32) {
-        let dt = (current_time - self.last_time) / 1000.0; // Convert to seconds
+        // requestAnimationFrame provides time in milliseconds
+        let dt = if self.last_time > 0.0 {
+            (current_time - self.last_time) / 1000.0 // Convert to seconds
+        } else {
+            0.016 // Default to ~60fps for first frame
+        };
         self.last_time = current_time;
 
         // Update camera based on input
         self.input_handler.update_camera(&mut self.camera);
 
-        // Update simulation if not paused
-        if !self.paused && self.input_handler.is_running() {
-            self.simulation.update(&self.graphics.queue, dt);
-        }
-
-        // Check for pause toggle
+        // Check for pause toggle first
         if self.input_handler.pause_toggled() {
             self.paused = !self.paused;
             console_log!(
                 "Simulation {}",
                 if self.paused { "paused" } else { "resumed" }
             );
+        }
+
+        // Update simulation if not paused
+        if !self.paused {
+            self.simulation.update(&self.graphics.queue, dt);
+            // Log FPS every 60 frames (roughly once per second at 60fps)
+            static mut FRAME_COUNT: u32 = 0;
+            unsafe {
+                FRAME_COUNT += 1;
+                if FRAME_COUNT % 60 == 0 {
+                    let fps = 1.0 / dt;
+                    console_log!("FPS: {:.1}, dt: {:.3}s, paused: {}", fps, dt, self.paused);
+                }
+            }
         }
     }
 
@@ -95,7 +110,7 @@ impl AppState {
                 });
 
         // Run compute pass if not paused
-        if !self.paused && self.input_handler.is_running() {
+        if !self.paused {
             self.simulation.compute_pass(&mut encoder);
         }
 
@@ -204,8 +219,8 @@ async fn run() -> Result<(), JsValue> {
 }
 
 fn request_animation_frame() {
-    let closure = Closure::once_into_js(Box::new(|| {
-        animation_frame(js_sys::Date::now() as f32);
+    let closure = Closure::once_into_js(Box::new(|time: f64| {
+        animation_frame(time as f32);
     }));
 
     web_sys::window()

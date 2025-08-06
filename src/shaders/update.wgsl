@@ -23,6 +23,12 @@ fn update_particles(@builtin(global_invocation_id) gid: vec3<u32>) {
     
     var particle = particles[index];
     
+    // Debug: log first few particles to see if they're moving
+    if (index < 5u) {
+        // We can't use console.log in WGSL, but we can make particles more visible
+        // by giving them a special color or position
+    }
+    
     // Calculate distance from center (0, 0)
     let r2 = dot(particle.position, particle.position) + 1e-6; // Add small epsilon to avoid division by zero
     let r = sqrt(r2);
