@@ -3,7 +3,7 @@ name = "galaxy-sim"
 version = "0.1.0"
 edition = "2021"
 authors = ["Robert Gilks <robert@example.com>"]
-description = "A GPU-accelerated galaxy simulation in Rust with WebGPU"
+description = "A GPU-accelerated black hole accretion disk simulation in Rust with WebGPU"
 license = "MIT"
 
 [package.metadata.wasm-pack.profile.release]

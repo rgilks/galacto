@@ -1,32 +1,32 @@
-# 🌌 Galaxy Simulation
+# ⚫ Black Hole Accretion Disk Simulation
 
-A stunning GPU-accelerated galaxy simulation featuring thousands of stars orbiting a central mass. Built with **Rust**, **WebAssembly**, and **WebGPU** for maximum performance directly in your browser.
+A stunning GPU-accelerated black hole accretion disk simulation featuring thousands of particles orbiting a central singularity. Built with **Rust**, **WebAssembly**, and **WebGPU** for maximum performance directly in your browser.
 
-![Galaxy Simulation Demo](https://via.placeholder.com/800x400/000011/ffffff?text=🌌+Galaxy+Simulation+Demo)
+![Black Hole Simulation Demo](https://via.placeholder.com/800x400/000011/ffffff?text=⚫+Black+Hole+Simulation+Demo)
 
 ## ✨ Features
 
 - **🚀 GPU Acceleration**: All physics calculations run on your GPU using WebGPU compute shaders
 - **🦀 Rust Performance**: Written in Rust and compiled to WebAssembly for near-native speed
 - **🎮 Interactive 3D Controls**: Pan, zoom, rotate, pause, and reset with intuitive mouse and keyboard controls
-- **🌈 Visual Effects**: Stars are colored based on their orbital velocity with smooth gradients and depth-based effects
+- **🌈 Visual Effects**: Particles are colored based on their orbital velocity with smooth gradients and depth-based effects
 - **📱 Responsive Design**: Works on desktop and mobile devices with WebGPU support
 - **☁️ Edge Deployment**: Ready for deployment on Cloudflare Workers for global distribution
 - **🧵 Future Threading**: Prepared for multi-threading with `wasm-bindgen-rayon` when browsers support it
 
 ## 🎯 Live Demo
 
-**Coming Soon**: The simulation will be deployed at `https://galaxy-sim.your-workers-domain.workers.dev`
+**Live Demo**: The simulation is deployed at `http://galacto.tre.systems/`
 
 ## 🎮 Controls
 
-| Input                | Action                              |
-| -------------------- | ----------------------------------- |
-| **Left Mouse Drag**  | Rotate the camera around the center |
-| **Right Mouse Drag** | Pan the camera around the galaxy    |
-| **Mouse Wheel**      | Zoom in and out                     |
-| **Spacebar**         | Pause/resume the simulation         |
-| **R Key**            | Reset camera to default position    |
+| Input                | Action                               |
+| -------------------- | ------------------------------------ |
+| **Left Mouse Drag**  | Rotate the camera around the center  |
+| **Right Mouse Drag** | Pan the camera around the black hole |
+| **Mouse Wheel**      | Zoom in and out                      |
+| **Spacebar**         | Pause/resume the simulation          |
+| **R Key**            | Reset camera to default position     |
 
 ## 🏗️ Architecture
 
@@ -84,8 +84,8 @@ galacto/
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/galaxy-sim.git
-cd galaxy-sim
+git clone https://github.com/yourusername/black-hole-sim.git
+cd black-hole-sim
 
 # Set up the development environment
 npm run setup
@@ -169,18 +169,18 @@ WebGPU support is gradually rolling out. Check if your version supports it.
 
 The simulation is designed to run smoothly with thousands of particles:
 
-- **Target**: 60 FPS with 4,096 particles
-- **GPU Memory**: ~32KB for particle data
-- **Compute**: Single dispatch per frame (~64 workgroups)
+- **Target**: 60 FPS with 131,072 particles
+- **GPU Memory**: ~3MB for particle data
+- **Compute**: Single dispatch per frame (~2,048 workgroups)
 - **Rendering**: Point primitives with velocity-based coloring
 
 ### Performance Monitoring
 
 The application includes built-in performance monitoring:
 
-- FPS counter in the UI
+- FPS logging to console every 60 frames
 - Frame time logging to console
-- Automatic performance adjustment for slower devices
+- Performance monitoring in browser console
 
 ## 🧵 Future: Multi-threading
 
@@ -213,11 +213,11 @@ The project is prepared for WebAssembly threading support:
 
 The simulation uses a simplified 3D N-body gravitational model:
 
-1. **Central Mass**: Fixed gravitational source at origin (0, 0, 0)
+1. **Central Singularity**: Fixed gravitational source at origin (0, 0, 0) representing a black hole
 2. **3D Particle Motion**: Euler integration with 3D gravitational acceleration
 3. **Orbital Mechanics**: Circular orbital velocities in the xy-plane with z-axis thickness
 4. **Boundary Conditions**: Elastic collisions with 3D world boundaries
-5. **Depth Effects**: Particles have varying z-coordinates for realistic galaxy thickness
+5. **Depth Effects**: Particles have varying z-coordinates for realistic accretion disk thickness
 
 ### Shader Implementation
 
@@ -227,14 +227,20 @@ The simulation uses a simplified 3D N-body gravitational model:
 // 3D gravitational acceleration: a = -GM/r^3 * position_vector
 let acceleration = -params.gm * inv_r3 * particle.position;
 
-// 3D Euler integration
+// 3D Euler integration with velocity clamping
 particle.velocity = particle.velocity * drag + acceleration * params.dt;
+let max_velocity = 140.0;
+let current_speed = length(particle.velocity);
+if current_speed > max_velocity {
+    particle.velocity = normalize(particle.velocity) * max_velocity;
+}
 particle.position = particle.position + particle.velocity * params.dt;
 
-// 3D boundary conditions
-if (abs(particle.position.z) > boundary) {
-    particle.position.z = sign(particle.position.z) * boundary;
-    particle.velocity.z = -particle.velocity.z * 0.8;
+// 3D boundary conditions with energy loss
+let boundary = 600.0;
+if abs(particle.position.x) > boundary {
+    particle.position.x = sign(particle.position.x) * boundary;
+    particle.velocity.x = -particle.velocity.x * 0.1;
 }
 ```
 
@@ -250,8 +256,8 @@ if (abs(particle.position.z) > boundary) {
 The camera now supports full 3D perspective projection:
 
 - **Perspective Projection**: 45° field of view with depth testing
-- **Orbit Controls**: Right-click and drag to rotate around the center
-- **Pan Controls**: Left-click and drag to move the camera
+- **Orbit Controls**: Left-click and drag to rotate around the center
+- **Pan Controls**: Right-click and drag to move the camera
 - **Zoom Controls**: Mouse wheel to adjust distance
 - **Depth Texture**: Proper depth testing for 3D rendering
 
@@ -262,10 +268,10 @@ The camera now supports full 3D perspective projection:
 Modify `simulation.rs`:
 
 ```rust
-const NUM_PARTICLES: u32 = 16384;  // Number of stars
+const NUM_PARTICLES: u32 = 131072;  // Number of particles
 let params = SimulationParams {
     dt: 0.016,          // Time step (60 FPS)
-    gm: 50000.0,        // Gravitational strength
+    gm: 40000.0,        // Gravitational strength
     particle_count: NUM_PARTICLES,
 };
 ```
@@ -282,17 +288,18 @@ let color = mix(vec3<f32>(0.2, 0.4, 1.0), vec3<f32>(1.0, 0.3, 0.0), speed_factor
 let depth_color = mix(vec3<f32>(0.2, 0.2, 0.5), vec3<f32>(1.0, 1.0, 1.0), depth_factor);
 ```
 
-### 3D Galaxy Distribution
+### 3D Accretion Disk Distribution
 
 Modify particle generation in `simulation.rs`:
 
 ```rust
-// Create 3D disk galaxy with thickness
-let radius = rng.gen_range(50.0..400.0);
-let z = rng.gen_range(-20.0..20.0);  // Galaxy thickness
+// Create 3D accretion disk with thickness
+let x = 10.0;  // Fixed distance from center
+let y = rng.gen_range(-150.0..150.0);  // Spread along y-axis
+let z = 100.0;  // Fixed z-coordinate
 
-// Add z-velocity for 3D motion
-let vz = rng.gen_range(-5.0..5.0);
+// Calculate perpendicular velocity (tangential to radius)
+let vx = 150.0;  // Fixed x-velocity
 ```
 
 ### Camera Controls

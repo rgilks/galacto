@@ -1,4 +1,4 @@
-// Simple development server for the Galaxy Simulation
+// Simple development server for the Black Hole Simulation
 // Serves the built WebAssembly app with proper CORS and MIME types
 
 const http = require("http");
@@ -123,7 +123,7 @@ function handleRequest(req, res) {
 const server = http.createServer(handleRequest);
 
 server.listen(PORT, HOST, () => {
-  console.log(`🚀 Galaxy Simulation development server running!`);
+  console.log(`⚫ Black Hole Simulation development server running!`);
   console.log(`📍 Server: http://${HOST}:${PORT}`);
   console.log(
     `🌌 Open the URL above in a WebGPU-enabled browser to view the simulation.`

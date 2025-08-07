@@ -1,7 +1,7 @@
 {
   "name": "galaxy-sim",
   "version": "0.1.0",
-  "description": "A GPU-accelerated galaxy simulation in Rust with WebGPU",
+  "description": "A GPU-accelerated black hole accretion disk simulation in Rust with WebGPU",
   "main": "server.js",
   "scripts": {
     "setup": "npm install && rustup target add wasm32-unknown-unknown",
@@ -26,7 +26,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/galaxy-sim.git"
+    "url": "https://github.com/yourusername/black-hole-sim.git"
   },
   "keywords": [
     "rust",
@@ -34,7 +34,8 @@
     "webgpu",
     "wgpu",
     "simulation",
-    "galaxy",
+    "black-hole",
+    "accretion-disk",
     "physics",
     "gpu-compute"
   ],

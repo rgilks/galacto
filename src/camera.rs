@@ -41,12 +41,24 @@ impl Camera {
     }
 
     pub fn zoom(&mut self, delta: f32) {
-        // Exponential zoom for smooth feel
-        let zoom_factor = 1.0 + delta * 0.001;
+        // Exponential zoom for smooth feel - increased sensitivity
+        let zoom_factor = 1.0 + delta * 0.01;
+        let old_scale = self.scale;
         self.scale *= zoom_factor;
 
-        // Clamp zoom levels - much more restrictive zoom out to keep users engaged
-        self.scale = self.scale.clamp(0.1, 2.5);
+        // Clamp zoom levels - prevent zooming out too far (scale 0.3 is min zoom out)
+        self.scale = self.scale.clamp(0.3, 5.0);
+
+        // Debug logging to see what's happening
+        if (old_scale - self.scale).abs() > 0.01 {
+            crate::utils::console_log!(
+                "Zoom: delta={:.3}, factor={:.3}, scale: {:.3} -> {:.3}",
+                delta,
+                zoom_factor,
+                old_scale,
+                self.scale
+            );
+        }
     }
 
     pub fn reset(&mut self) {

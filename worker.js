@@ -1,4 +1,4 @@
-// Cloudflare Worker script for serving the Galaxy Simulation
+// Cloudflare Worker script for serving the Black Hole Simulation
 // This is a minimal static file server with proper headers for WebGPU
 
 export default {

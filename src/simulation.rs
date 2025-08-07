@@ -244,7 +244,7 @@ impl Simulation {
             ],
         });
 
-        console_log!("🌌 Galaxy Simulation initialized!");
+        console_log!("⚫ Black Hole Simulation initialized!");
         console_log!(
             "📊 Particle count: {} ({}K)",
             NUM_PARTICLES,
@@ -278,8 +278,6 @@ impl Simulation {
             let z = 100.0;
             let x = 10.0;
             let y = rng.gen_range(-150.0..150.0);
-
-    
 
             // Calculate perpendicular velocity (tangential to radius)
             let vx = 150.0;

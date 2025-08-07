@@ -38,7 +38,7 @@ pub struct AppState {
 
 impl AppState {
     pub async fn new(canvas: web_sys::HtmlCanvasElement) -> Result<Self, JsValue> {
-        console_log!("Initializing Galaxy Simulation...");
+        console_log!("Initializing Black Hole Simulation...");
 
         let graphics = Graphics::new(canvas).await?;
         let simulation =
@@ -174,7 +174,7 @@ pub fn start() -> Result<(), JsValue> {
     #[cfg(target_arch = "wasm32")]
     console_log::init_with_level(log::Level::Info).unwrap();
 
-    console_log!("Starting Galaxy Simulation...");
+    console_log!("Starting Black Hole Simulation...");
 
     spawn_local(async {
         if let Err(e) = run().await {
