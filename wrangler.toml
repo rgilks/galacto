@@ -5,14 +5,14 @@ compatibility_date = "2024-08-06"
 compatibility_flags = ["nodejs_compat"]
 
 # Main worker script (optional - for static sites we mainly use assets)
-# main = "worker.js"
+main = "worker.js"
 
 # Static assets configuration
 [assets]
 directory = "./pkg"
 binding = "ASSETS"
 html_handling = "auto-trailing-slash"
-not_found_handling = "single-page-app"
+not_found_handling = "single-page-application"
 
 # Environment variables (if needed)
 [vars]
@@ -20,8 +20,8 @@ ENVIRONMENT = "production"
 
 # Custom routing (if needed for API endpoints)
 [[routes]]
-pattern = "*/*"
-zone_name = "your-domain.com" # Replace with your domain
+pattern = "galacto.tre.systems/*"
+zone_name = "tre.systems"         # Your domain
 
 # Build configuration
 [build]
@@ -34,25 +34,3 @@ watch_dir = ["src", "static"]
 port = 8787
 local_protocol = "https"
 upstream_protocol = "https"
-
-# Durable Objects (future extension)
-# [[durable_objects.bindings]]
-# name = "SIMULATION_STATE"
-# class_name = "SimulationState"
-
-# KV namespaces (for storing user settings, high scores, etc.)
-# [[kv_namespaces]]
-# binding = "USER_SETTINGS"
-# id = "your_kv_namespace_id"
-# preview_id = "your_preview_kv_namespace_id"
-
-# R2 buckets (for storing simulation snapshots, recordings, etc.)
-# [[r2_buckets]]
-# binding = "SIMULATION_STORAGE"
-# bucket_name = "galaxy-sim-storage"
-
-# Analytics (optional)
-# [analytics_engine_datasets]
-# [[analytics_engine_datasets.bindings]]
-# name = "SIMULATION_ANALYTICS"
-# dataset = "galaxy_sim_events"
