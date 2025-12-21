@@ -2,7 +2,7 @@
 
 A stunning GPU-accelerated black hole accretion disk simulation featuring thousands of particles orbiting a central singularity. Built with **Rust**, **WebAssembly**, and **WebGPU** for maximum performance directly in your browser.
 
-![Black Hole Simulation Demo](https://via.placeholder.com/800x400/000011/ffffff?text=⚫+Black+Hole+Simulation+Demo)
+![Black Hole Simulation Demo](screenshot.png)
 
 ## ✨ Features
 
