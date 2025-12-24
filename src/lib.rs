@@ -74,15 +74,6 @@ impl AppState {
         // Update simulation if not paused
         if !self.paused {
             self.simulation.update(&self.graphics.queue, dt);
-            // Log FPS every 60 frames (roughly once per second at 60fps)
-            static mut FRAME_COUNT: u32 = 0;
-            unsafe {
-                FRAME_COUNT += 1;
-                if FRAME_COUNT.is_multiple_of(60) {
-                    let fps = 1.0 / dt;
-                    console_log!("FPS: {:.1}, dt: {:.3}s, paused: {}", fps, dt, self.paused);
-                }
-            }
         }
     }
 
