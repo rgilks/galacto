@@ -1,0 +1,19 @@
+# Security headers required for WebGPU
+/*
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
+  Cross-Origin-Resource-Policy: cross-origin
+
+# Immutable caching for content-hashed files (1 year)
+/*.*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.*.wasm
+  Cache-Control: public, max-age=31536000, immutable
+
+# Short cache for HTML (5 minutes)
+/index.html
+  Cache-Control: public, max-age=300
+
+/
+  Cache-Control: public, max-age=300

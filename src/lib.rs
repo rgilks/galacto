@@ -3,7 +3,6 @@ use wasm_bindgen::prelude::*;
 mod camera;
 mod graphics;
 mod input;
-mod render;
 mod simulation;
 mod utils;
 
