@@ -13,7 +13,7 @@ impl Camera {
     pub fn new() -> Self {
         Self {
             position: Vector3::new(0.0, 0.0, 800.0),
-            scale: 1.0,
+            scale: 3.0,
             aspect_ratio: 1.0,
             is_3d: true, // Enable 3D by default
             rotation_x: 0.0,
@@ -63,7 +63,7 @@ impl Camera {
 
     pub fn reset(&mut self) {
         self.position = Vector3::new(0.0, 0.0, 800.0);
-        self.scale = 1.0;
+        self.scale = 3.0;
         self.rotation_x = 0.0;
         self.rotation_y = 0.0;
     }
