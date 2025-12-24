@@ -2,7 +2,7 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-use web_sys::{HtmlCanvasElement, KeyboardEvent, MouseEvent, WheelEvent};
+use web_sys::{HtmlCanvasElement, KeyboardEvent, MouseEvent, TouchEvent, WheelEvent};
 
 pub struct InputState {
     pub mouse_pos: (f32, f32),
@@ -12,6 +12,9 @@ pub struct InputState {
     pub zoom_delta: f32,
     pub pause_pressed: bool,
     pub reset_pressed: bool,
+    // Touch state
+    pub touch_count: u32,
+    pub last_pinch_distance: f32,
 }
 
 impl InputState {
@@ -24,7 +27,22 @@ impl InputState {
             zoom_delta: 0.0,
             pause_pressed: false,
             reset_pressed: false,
+            touch_count: 0,
+            last_pinch_distance: 0.0,
         }
+    }
+}
+
+fn get_pinch_distance(event: &TouchEvent) -> f32 {
+    let touches = event.touches();
+    if touches.length() >= 2 {
+        let t1 = touches.get(0).unwrap();
+        let t2 = touches.get(1).unwrap();
+        let dx = t2.client_x() as f32 - t1.client_x() as f32;
+        let dy = t2.client_y() as f32 - t1.client_y() as f32;
+        (dx * dx + dy * dy).sqrt()
+    } else {
+        0.0
     }
 }
 
@@ -120,6 +138,81 @@ impl InputHandler {
             }) as Box<dyn FnMut(web_sys::Event)>);
 
             canvas.add_event_listener_with_callback("wheel", closure.as_ref().unchecked_ref())?;
+            self._closures.push(closure);
+        }
+
+        // Touch start
+        {
+            let state = self.state.clone();
+            let closure = Closure::wrap(Box::new(move |event: web_sys::Event| {
+                event.prevent_default();
+                let touch_event = event.dyn_into::<TouchEvent>().unwrap();
+                let mut state = state.borrow_mut();
+                let touches = touch_event.touches();
+                state.touch_count = touches.length();
+
+                if let Some(touch) = touches.get(0) {
+                    state.last_mouse_pos = (touch.client_x() as f32, touch.client_y() as f32);
+                    state.mouse_pos = state.last_mouse_pos;
+                    state.is_rotating = state.touch_count == 1;
+                }
+
+                if state.touch_count >= 2 {
+                    state.last_pinch_distance = get_pinch_distance(&touch_event);
+                }
+            }) as Box<dyn FnMut(web_sys::Event)>);
+
+            canvas
+                .add_event_listener_with_callback("touchstart", closure.as_ref().unchecked_ref())?;
+            self._closures.push(closure);
+        }
+
+        // Touch move
+        {
+            let state = self.state.clone();
+            let closure = Closure::wrap(Box::new(move |event: web_sys::Event| {
+                event.prevent_default();
+                let touch_event = event.dyn_into::<TouchEvent>().unwrap();
+                let mut state = state.borrow_mut();
+                let touches = touch_event.touches();
+
+                if touches.length() == 1 {
+                    // Single touch: rotate
+                    if let Some(touch) = touches.get(0) {
+                        state.mouse_pos = (touch.client_x() as f32, touch.client_y() as f32);
+                    }
+                } else if touches.length() >= 2 {
+                    // Pinch to zoom
+                    let new_distance = get_pinch_distance(&touch_event);
+                    if state.last_pinch_distance > 0.0 {
+                        let delta = new_distance - state.last_pinch_distance;
+                        state.zoom_delta = delta * 5.0; // Scale for sensitivity
+                    }
+                    state.last_pinch_distance = new_distance;
+                }
+            }) as Box<dyn FnMut(web_sys::Event)>);
+
+            canvas
+                .add_event_listener_with_callback("touchmove", closure.as_ref().unchecked_ref())?;
+            self._closures.push(closure);
+        }
+
+        // Touch end
+        {
+            let state = self.state.clone();
+            let closure = Closure::wrap(Box::new(move |event: web_sys::Event| {
+                event.prevent_default();
+                let touch_event = event.dyn_into::<TouchEvent>().unwrap();
+                let mut state = state.borrow_mut();
+                state.touch_count = touch_event.touches().length();
+                if state.touch_count == 0 {
+                    state.is_rotating = false;
+                    state.last_pinch_distance = 0.0;
+                }
+            }) as Box<dyn FnMut(web_sys::Event)>);
+
+            canvas
+                .add_event_listener_with_callback("touchend", closure.as_ref().unchecked_ref())?;
             self._closures.push(closure);
         }
 

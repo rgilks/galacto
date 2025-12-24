@@ -18,6 +18,7 @@ A stunning GPU-accelerated black hole accretion disk simulation featuring thousa
 
 ## 🎮 Controls
 
+### Desktop
 | Input                | Action                               |
 | -------------------- | ------------------------------------ |
 | **Left Mouse Drag**  | Rotate the camera around the center  |
@@ -25,6 +26,12 @@ A stunning GPU-accelerated black hole accretion disk simulation featuring thousa
 | **Mouse Wheel**      | Zoom in and out                      |
 | **Spacebar**         | Pause/resume the simulation          |
 | **R Key**            | Reset camera to default position     |
+
+### Mobile/Touch
+| Input                | Action                               |
+| -------------------- | ------------------------------------ |
+| **Single Finger**    | Rotate the camera                    |
+| **Pinch**            | Zoom in and out                      |
 
 ## 🚀 Quick Start
 
