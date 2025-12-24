@@ -17,7 +17,7 @@ impl Camera {
             aspect_ratio: 1.0,
             is_3d: true, // Enable 3D by default
             rotation_x: 0.0,
-            rotation_y: 0.0,
+            rotation_y: std::f32::consts::FRAC_PI_2,
         }
     }
 
@@ -65,7 +65,7 @@ impl Camera {
         self.position = Vector3::new(0.0, 0.0, 800.0);
         self.scale = 3.0;
         self.rotation_x = 0.0;
-        self.rotation_y = 0.0;
+        self.rotation_y = std::f32::consts::FRAC_PI_2;
     }
 
     pub fn build_view_projection_matrix(&self) -> Matrix4<f32> {
