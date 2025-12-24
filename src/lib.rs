@@ -84,7 +84,7 @@ impl AppState {
             static mut FRAME_COUNT: u32 = 0;
             unsafe {
                 FRAME_COUNT += 1;
-                if FRAME_COUNT % 60 == 0 {
+                if FRAME_COUNT.is_multiple_of(60) {
                     let fps = 1.0 / dt;
                     console_log!("FPS: {:.1}, dt: {:.3}s, paused: {}", fps, dt, self.paused);
                 }
