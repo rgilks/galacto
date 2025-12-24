@@ -275,7 +275,31 @@ impl Simulation {
         let mut rng = StdRng::seed_from_u64(42);
         let mut particles = Vec::with_capacity(NUM_PARTICLES as usize);
 
-        for i in 0..NUM_PARTICLES {
+        // Add scattered stars close to the black hole (first 500 particles)
+        let num_close_stars = 500u32;
+        for _ in 0..num_close_stars {
+            // Random position in a sphere near the black hole
+            let radius = rng.gen_range(20.0..80.0);
+            let theta = rng.gen_range(0.0..std::f32::consts::TAU); // Angle around Y axis
+            let phi: f32 = rng.gen_range(-0.5..0.5); // Elevation angle (flatten to disk-ish)
+
+            let x = radius * theta.cos() * phi.cos();
+            let y = radius * phi.sin() * 0.3; // Flatten vertically
+            let z = radius * theta.sin() * phi.cos();
+
+            // Calculate orbital velocity (perpendicular to radius, for roughly circular orbit)
+            let speed = (40000.0 / radius).sqrt() * 0.8; // Slightly slower than orbital
+            let vx = -theta.sin() * speed;
+            let vz = theta.cos() * speed;
+
+            particles.push(Particle {
+                position: [x, y, z],
+                velocity: [vx, 0.0, vz],
+            });
+        }
+
+        // Add the main particle stream
+        for i in num_close_stars..NUM_PARTICLES {
             let z = 100.0;
             let x = 10.0;
             let y = rng.gen_range(-150.0..150.0);
@@ -289,7 +313,7 @@ impl Simulation {
             });
 
             // Log progress every 10K particles
-            if (i + 1) % 10000 == 0 {
+            if (i + 1).is_multiple_of(10000) {
                 console_log!("📈 Generated {} particles...", i + 1);
             }
         }
