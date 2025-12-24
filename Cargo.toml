@@ -26,15 +26,11 @@ web-sys = { version = "0.3", features = [
     "MouseEvent",
     "WheelEvent",
     "KeyboardEvent",
-    "CanvasRenderingContext2d",
-    "WebGlRenderingContext",
     "console",
     "CssStyleDeclaration",
-    "HtmlInputElement",
 ] }
 js-sys = "0.3"
 console_error_panic_hook = { version = "0.1", optional = true }
-cfg-if = "1.0"
 log = "0.4"
 cgmath = "0.18"
 bytemuck = { version = "1.0", features = ["derive"] }
@@ -42,17 +38,9 @@ rand = "0.8"
 getrandom = { version = "0.2", features = ["js"] }
 raw-window-handle = "0.6"
 
-# Future multithreading support (commented out initially for compatibility)
-# rayon = "1.8"
-# wasm-bindgen-rayon = { version = "1.2", features = ["no-bundler"] }
-
 [features]
 default = []
 console_error_panic_hook = ["dep:console_error_panic_hook"]
-
-[dependencies.console_log]
-version = "1.0"
-optional = true
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 console_log = "1.0"

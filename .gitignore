@@ -1,50 +1,20 @@
 # Rust
 /target/
-Cargo.lock
 .cargo/
 
 # WebAssembly
 /pkg/
-*.wasm
 
 # Node.js
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
 # IDE
 .vscode/
 .idea/
 *.swp
-*.swo
 
 # OS
 .DS_Store
-Thumbs.db
-
-# Build outputs
-/dist/
-/build/
-
-# Logs
-*.log
-
-# Temporary files
-*.tmp
-*.temp
-
-# Environment variables
-.env
-.env.local
-.env.production
 
 # Cloudflare
 .wrangler/
-wrangler.toml.backup
-
-# Testing
-/coverage/
-
-# Cache
-.cache/

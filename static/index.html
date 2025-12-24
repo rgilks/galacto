@@ -6,49 +6,15 @@
     <title>Black Hole Simulation - WebGPU</title>
     <meta
       name="description"
-              content="A GPU-accelerated black hole accretion disk simulation featuring thousands of particles orbiting a central singularity. Built with Rust, WebAssembly, and WebGPU."
+      content="A GPU-accelerated black hole accretion disk simulation featuring thousands of particles orbiting a central singularity. Built with Rust, WebAssembly, and WebGPU."
     />
     <link rel="stylesheet" href="styles.css" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-    <style>
-      /* Inline critical CSS for faster loading */
-      body {
-        margin: 0;
-        padding: 0;
-        background: #000;
-        overflow: hidden;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      }
-
-      #gpu-canvas {
-        display: block;
-        width: 100vw;
-        height: 100vh;
-      }
-
-      .loading {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: #fff;
-        text-align: center;
-        z-index: 1000;
-      }
-
-      .error {
-        color: #ff4444;
-        background: rgba(0, 0, 0, 0.8);
-        padding: 20px;
-        border-radius: 8px;
-        max-width: 600px;
-      }
-    </style>
   </head>
   <body>
     <!-- Loading screen -->
     <div id="loading" class="loading">
-              <h2>Initializing Black Hole Simulation...</h2>
+      <h2>Initializing Black Hole Simulation...</h2>
       <p>Loading WebGPU and compiling shaders...</p>
       <div class="loader"></div>
     </div>
@@ -60,20 +26,11 @@
         This simulation requires WebGPU support. Please ensure you're using a
         modern browser with WebGPU enabled:
       </p>
-      <ul style="text-align: left">
-        <li>
-          <strong>Chrome/Edge:</strong> Version 113+ (should work by default)
-        </li>
-        <li>
-          <strong>Firefox:</strong> Enable <code>dom.webgpu.enabled</code> in
-          about:config
-        </li>
+      <ul>
+        <li><strong>Chrome/Edge:</strong> Version 113+ (should work by default)</li>
+        <li><strong>Firefox:</strong> Enable <code>dom.webgpu.enabled</code> in about:config</li>
         <li><strong>Safari:</strong> WebGPU support may vary by version</li>
       </ul>
-      <p>
-        You can also try visiting <code>chrome://flags/</code> and enabling
-        "Unsafe WebGPU" if the above doesn't work.
-      </p>
       <div id="error-details"></div>
     </div>
 
@@ -81,51 +38,30 @@
     <canvas id="gpu-canvas"></canvas>
 
     <script type="module">
-      // Check for WebGPU support before loading WASM
       async function checkWebGPUSupport() {
         if (!navigator.gpu) {
           throw new Error("WebGPU not supported in this browser");
         }
-
-        try {
-          const adapter = await navigator.gpu.requestAdapter();
-          if (!adapter) {
-            throw new Error("No WebGPU adapter found");
-          }
-
-          const device = await adapter.requestDevice();
-          if (!device) {
-            throw new Error("Failed to create WebGPU device");
-          }
-
-          return true;
-        } catch (error) {
-          throw new Error(`WebGPU initialization failed: ${error.message}`);
+        const adapter = await navigator.gpu.requestAdapter();
+        if (!adapter) {
+          throw new Error("No WebGPU adapter found");
         }
+        const device = await adapter.requestDevice();
+        if (!device) {
+          throw new Error("Failed to create WebGPU device");
+        }
+        return true;
       }
 
-      // Initialize the application
       async function init() {
         const loadingEl = document.getElementById("loading");
         const errorEl = document.getElementById("error");
         const errorDetailsEl = document.getElementById("error-details");
 
         try {
-          // Check WebGPU support
           await checkWebGPUSupport();
-
-          // Import and initialize the WASM module
-          const { default: init, initThreadPool } = await import(
-            "./galaxy_sim.js"
-          );
+          const { default: init } = await import("./galaxy_sim.js");
           await init();
-
-          // Future: Initialize thread pool for multithreading
-          // if (typeof initThreadPool === 'function') {
-          //     await initThreadPool(navigator.hardwareConcurrency);
-          // }
-
-          // Hide loading screen
           loadingEl.style.display = "none";
         } catch (error) {
           console.error("Failed to initialize application:", error);
@@ -135,17 +71,7 @@
         }
       }
 
-      // Start the application
       init().catch(console.error);
-
-      // Handle page visibility for performance
-      document.addEventListener("visibilitychange", () => {
-        if (document.hidden) {
-          console.log("Page hidden - simulation continues");
-        } else {
-          console.log("Page visible - simulation active");
-        }
-      });
     </script>
   </body>
 </html>

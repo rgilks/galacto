@@ -2,26 +2,19 @@
   "name": "galaxy-sim",
   "version": "0.1.0",
   "description": "A GPU-accelerated black hole accretion disk simulation in Rust with WebGPU",
-  "main": "server.js",
   "scripts": {
     "setup": "npm install && rustup target add wasm32-unknown-unknown",
-    "build": "npm run build:wasm && npm run build:web",
+    "build": "npm run build:wasm && npm run copy-assets",
     "build:wasm": "wasm-pack build --target web --release --out-dir pkg --out-name galaxy_sim --no-opt",
-    "build:web": "npm run copy-assets && npm run cache-bust",
-    "cache-bust": "node scripts/cache-buster.js",
-    "build:desktop": "cargo build --release",
-    "copy-assets": "cp -r static/* pkg/ 2>/dev/null || xcopy /E /Y static pkg\\ 2>nul || echo 'Assets copied'",
+    "copy-assets": "cp -r static/* pkg/",
     "dev": "npm run build && npm run serve",
-    "dev:desktop": "cargo run --release",
-    "dev:desktop:headless": "cargo run --release -- --headless",
-    "serve": "node server.js",
-    "clean": "cargo clean && rm -rf pkg dist",
+    "serve": "npx -y serve pkg -l 8000 --cors",
+    "clean": "cargo clean && rm -rf pkg",
     "test": "cargo test",
     "lint": "cargo clippy",
     "format": "cargo fmt",
     "deploy": "wrangler pages deploy pkg --project-name=galacto",
     "check": "cargo check --target wasm32-unknown-unknown",
-    "check:native": "cargo check",
     "precommit": "cargo fmt --check && cargo clippy -- -D warnings && cargo test",
     "prepare": "husky"
   },
@@ -33,12 +26,8 @@
     "rust",
     "webassembly",
     "webgpu",
-    "wgpu",
     "simulation",
-    "black-hole",
-    "accretion-disk",
-    "physics",
-    "gpu-compute"
+    "black-hole"
   ],
   "author": "Robert Gilks",
   "license": "MIT",
@@ -48,11 +37,5 @@
   },
   "engines": {
     "node": ">=16.0.0"
-  },
-  "browserslist": [
-    "Chrome >= 113",
-    "Edge >= 113",
-    "Firefox >= 110",
-    "Safari >= 16.4"
-  ]
+  }
 }

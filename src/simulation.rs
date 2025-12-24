@@ -271,7 +271,6 @@ impl Simulation {
     }
 
     fn generate_initial_particles() -> Vec<Particle> {
-        console_log!("🎲 Generating {} particles...", NUM_PARTICLES);
         let mut rng = StdRng::seed_from_u64(42);
         let mut particles = Vec::with_capacity(NUM_PARTICLES as usize);
 
@@ -299,7 +298,7 @@ impl Simulation {
         }
 
         // Add the main particle stream
-        for i in num_close_stars..NUM_PARTICLES {
+        for _i in num_close_stars..NUM_PARTICLES {
             let z = 100.0;
             let x = 10.0;
             let y = rng.gen_range(-150.0..150.0);
@@ -311,14 +310,9 @@ impl Simulation {
                 position: [x, y, z],
                 velocity: [vx, 0.0, 0.0],
             });
-
-            // Log progress every 10K particles
-            if (i + 1).is_multiple_of(10000) {
-                console_log!("📈 Generated {} particles...", i + 1);
-            }
         }
 
-        console_log!("✅ All {} particles generated successfully!", NUM_PARTICLES);
+        console_log!("✅ Generated {} particles", NUM_PARTICLES);
         particles
     }
 

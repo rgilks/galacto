@@ -20,11 +20,6 @@ use std::cell::RefCell;
 use std::rc::Rc;
 use wasm_bindgen_futures::spawn_local;
 
-// Re-export for future threading support
-// pub use wasm_bindgen_rayon::init_thread_pool;
-
-// Console logging is now handled in utils module
-
 // Global application state
 pub struct AppState {
     graphics: Graphics,
