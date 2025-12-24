@@ -35,7 +35,7 @@ impl Graphics {
                     ),
                     raw_window_handle: raw_window_handle::RawWindowHandle::WebCanvas(canvas_handle),
                 })
-                .map_err(|e| JsValue::from_str(&format!("Failed to create surface: {:?}", e)))?
+                .map_err(|e| JsValue::from_str(&format!("Failed to create surface: {e:?}")))?
         };
 
         let adapter = instance
@@ -55,7 +55,7 @@ impl Graphics {
         let (device, queue) = adapter
             .request_device(&wgpu::DeviceDescriptor::default(), None)
             .await
-            .map_err(|e| JsValue::from_str(&format!("Failed to create device: {:?}", e)))?;
+            .map_err(|e| JsValue::from_str(&format!("Failed to create device: {e:?}")))?;
 
         // Configure the surface
         let size = (1024, 768);

@@ -22,7 +22,10 @@
     "deploy": "wrangler deploy",
     "dev:worker": "wrangler dev",
     "check": "cargo check --target wasm32-unknown-unknown",
-    "check:native": "cargo check"
+    "check:native": "cargo check",
+    "deps:update": "npx npm-check-updates -u",
+    "precommit": "cargo fmt --check && cargo clippy -- -D warnings && cargo test",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -42,10 +45,10 @@
   "author": "Your Name <your.email@example.com>",
   "license": "MIT",
   "devDependencies": {
-    "serve": "^14.2.1",
-    "wrangler": "^3.57.0"
+    "husky": "^9.1.7",
+    "serve": "^14.2.5",
+    "wrangler": "^4.54.0"
   },
-  "dependencies": {},
   "engines": {
     "node": ">=16.0.0"
   },

@@ -197,8 +197,6 @@ impl InputHandler {
         }
     }
 
-
-
     pub fn pause_toggled(&self) -> bool {
         let mut state = self.state.borrow_mut();
         if state.pause_pressed {

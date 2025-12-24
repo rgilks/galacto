@@ -1,0 +1,33 @@
+#!/bin/sh
+
+echo "🔍 Running pre-commit checks..."
+
+# 1. Check formatting
+echo ""
+echo "📐 Checking code formatting..."
+if ! cargo fmt --check; then
+    echo "❌ Formatting check failed. Run 'cargo fmt' to fix."
+    exit 1
+fi
+echo "✅ Formatting check passed"
+
+# 2. Run clippy lints
+echo ""
+echo "📎 Running clippy lints..."
+if ! cargo clippy -- -D warnings; then
+    echo "❌ Clippy check failed. Fix the warnings above."
+    exit 1
+fi
+echo "✅ Clippy check passed"
+
+# 3. Run tests
+echo ""
+echo "🧪 Running tests..."
+if ! cargo test; then
+    echo "❌ Tests failed. Fix the failing tests above."
+    exit 1
+fi
+echo "✅ All tests passed"
+
+echo ""
+echo "✅ All pre-commit checks passed!"

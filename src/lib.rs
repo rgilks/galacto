@@ -93,10 +93,11 @@ impl AppState {
     }
 
     pub fn render(&mut self) -> Result<(), wasm_bindgen::JsValue> {
-        let frame =
-            self.graphics.surface.get_current_texture().map_err(|e| {
-                JsValue::from_str(&format!("Failed to get surface texture: {:?}", e))
-            })?;
+        let frame = self
+            .graphics
+            .surface
+            .get_current_texture()
+            .map_err(|e| JsValue::from_str(&format!("Failed to get surface texture: {e:?}")))?;
 
         let view = frame
             .texture
@@ -238,13 +239,11 @@ fn request_animation_frame() {
 
 fn animation_frame(time: f32) {
     unsafe {
-        if let Some(app_state) = (&raw const APP_STATE).as_ref() {
-            if let Some(app_state) = app_state {
-                let mut app = app_state.borrow_mut();
-                app.update(time);
-                if let Err(e) = app.render() {
-                    console_log!("Render error: {:?}", e);
-                }
+        if let Some(Some(app_state)) = (&raw const APP_STATE).as_ref() {
+            let mut app = app_state.borrow_mut();
+            app.update(time);
+            if let Err(e) = app.render() {
+                console_log!("Render error: {:?}", e);
             }
         }
     }

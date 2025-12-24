@@ -24,6 +24,7 @@ pub struct SimulationParams {
 }
 
 pub struct Simulation {
+    #[allow(dead_code)]
     particle_buffer: wgpu::Buffer,
     pub params_buffer: wgpu::Buffer,
     pub compute_pipeline: wgpu::ComputePipeline,
@@ -252,7 +253,7 @@ impl Simulation {
         );
         console_log!(
             "⚡ Workgroups: {} ({} particles per workgroup)",
-            (NUM_PARTICLES + WORKGROUP_SIZE - 1) / WORKGROUP_SIZE,
+            NUM_PARTICLES.div_ceil(WORKGROUP_SIZE),
             WORKGROUP_SIZE
         );
         console_log!("🎯 Ready to simulate gravitational dynamics!");
@@ -310,7 +311,7 @@ impl Simulation {
 
         compute_pass.set_pipeline(&self.compute_pipeline);
         compute_pass.set_bind_group(0, &self.compute_bind_group, &[]);
-        let workgroups = (NUM_PARTICLES + WORKGROUP_SIZE - 1) / WORKGROUP_SIZE;
+        let workgroups = NUM_PARTICLES.div_ceil(WORKGROUP_SIZE);
         compute_pass.dispatch_workgroups(workgroups, 1, 1);
     }
 
